@@ -1,0 +1,26 @@
+{% extends 'base.html' %} 
+
+{% block content %} 
+{% if user.is_authenticated %}
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); padding: 25px">
+    <div style="text-align: center;">
+        <p><a href="{% url 'product' %}"><i class="fa-solid fa-gears" style="font-size: 200px;"></i></a></p>
+        <p><a href="{% url 'product' %}">Part List</a></p>
+    </div>
+
+    <div style="text-align: center;">
+        <p><a href="{% url 'hopper_fill' %}"><i class="fa-solid fa-file-pen" style="font-size: 200px;"></i></a></p>
+        <p><a href="{% url 'hopper_fill' %}">Hopper Input Form</a></p>
+    </div>
+
+    <div style="text-align: center;">
+        <p><a href="{% url 'hopper_fill_data' %}"><i class="fa-solid fa-table-list" style="font-size: 200px;"></i></a></p>
+        <p><a href="{% url 'hopper_fill_data' %}">Hopper Input Data</i></a></p>
+    </div>
+</div>
+{% else %} 
+<meta http-equiv="refresh" content="0; {% url 'login' %}" />
+{% endif %}
+
+{% endblock content %}

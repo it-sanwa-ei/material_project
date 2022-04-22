@@ -1,0 +1,28 @@
+{% extends 'base.html' %} 
+{% load admin_urls %}
+
+{% block content %} 
+
+<p style="text-align: right;"><a href="{% url 'product_input'%}">Add New Product</a></p>
+
+<div>
+    <table style="border: 1px solid white;">
+        <tr style="border: 1px solid white;">
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white;">Product ID</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white">Product Name</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white">Material</th>
+        </tr>
+        {% for product in product_list %} 
+        <tr style="border: 1px solid white;">
+            <td style="width: 80em; border: 1px solid white; background-color: lightblue;"><a href="{% url 'product_detail' product.pk %}">{{product.part_id}}</td>
+            <td style="width: 100em; border: 1px solid white; background-color: lightblue;">{{product.part_name}}</td>
+            <td style="width: 150em; border: 1px solid white; background-color: lightblue;">{{product.material}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+
+
+
+{% endblock content %}

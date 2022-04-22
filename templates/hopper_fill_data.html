@@ -1,0 +1,49 @@
+{% extends 'base.html' %} 
+{% load admin_urls %}
+
+{% block content %} 
+
+<div>
+<button class="btn btn-success"><a href="{% url 'export_hopper_xlsx' %}" style="color: white;">Export Excel (.xlsx)</a></button>
+<button class="btn btn-light border-dark"><a href="{% url 'export_hopper_xls' %}" style="color: green;">Export Excel (.xls)</a></button>
+</div>
+
+<div>
+<p style="text-align: right;"><a href="{% url 'hopper_fill'%}">Add New Hopper Fill Data</a></p>
+</div>
+
+<div>
+    <table style="border: 1px solid white;">
+        <tr style="border: 1px solid white;">
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Product ID</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Product Name</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Material</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">No Lot</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Temperature</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Tanggal</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Jumlah Isi</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Jam Isi</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Shift</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">PIC</th>
+        </tr>
+        {% for hopper_fill_data in hopper_fill_data_list %} 
+        <tr style="border: 1px solid white;">
+            <td style="width: 80em; border: 1px solid white; background-color: lightblue; text-align: center;"><a href="{% url 'product_detail' hopper_fill_data.product.pk %}">{{hopper_fill_data.product.part_id}}</a></td>
+            <td style="width: 150em; border: 1px solid white; background-color: lightblue;">{{hopper_fill_data.product.part_name}}</td>
+            <td style="width: 150em; border: 1px solid white; background-color: lightblue;">{{hopper_fill_data.product.material}}</td>
+            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.no_lot}}</td>
+            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.temp}}</td>
+            <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.tanggal|date:"d-M-Y"}}</td>
+            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.jumlah_isi}}</td>
+            <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.jam_isi|time:"H:i"}}</td>
+            <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.shift}}</td>
+            <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pic}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+
+
+
+{% endblock content %}
