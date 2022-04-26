@@ -33,7 +33,7 @@ shift3_e = time(7, 59, 59)
 shift_choice = ['Shift 1', 'Shift 2', 'Shift 3']
 
 class Product(models.Model):
-    part_id = models.CharField('Part ID', max_length=20, blank=False, null=False, unique=True)
+    part_id = models.CharField('Part ID', max_length=20, blank=False, null=False)
     part_name = models.CharField('Part Name', max_length=100, blank=False, null=False)
     material = models.CharField('Material', max_length=100, blank=False, null=False)
     cycle_time = models.DecimalField('Cycle Time', max_digits=5, decimal_places=2, blank=False, null=False)

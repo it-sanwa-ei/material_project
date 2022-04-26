@@ -1,6 +1,14 @@
-version: '3.9' #docker version
+version: "3.9" #docker version
 
 services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/PostgreSQL/data
+    environment:
+      - POSTGRES_DB=material_hopper
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=asd123asd
   web:
     build: .
     command: python /code/manage.py runserver 0.0.0.0:8000
@@ -8,3 +16,14 @@ services:
       - .:/code
     ports:
       - 8000:8000
+    environment:
+      - POSTGRES_NAME=material_hopper
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=asd123asd
+    depends_on:
+      - db
+volumes:
+  postgres_data:
+
+
+

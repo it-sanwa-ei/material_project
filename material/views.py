@@ -2,11 +2,15 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, TemplateView
+from django.views.generic.list import BaseListView
 from django.views.generic.edit import UpdateView, DeleteView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-from django.http import HttpResponse
-from regex import F
+from django.db.models import Q
+from django.core.paginator import Paginator
+from django.core import signing
+from django.http import HttpResponse, Http404, JsonResponse
+from django.core.signing import BadSignature
+from django.core.cache import cache
 
 from tablib import Dataset
 import csv
@@ -18,6 +22,7 @@ import io
 from .models import Product, HopperFillData
 from .forms import HopperFillForm
 from .resources import ProductResources, HopperFillDataResources
+from material_project import settings
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -27,6 +32,14 @@ class ProductListView(ListView):
     template_name = 'product.html'
     context_object_name = 'product_list'
     paginate_by = 50
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        if query:
+            return Product.objects.filter( Q(part_id__icontains=query) | Q(part_name__icontains=query) | Q(material__icontains=query))
+        else:
+            return Product.objects.all()
+        
 
 class ProductDetailView(DetailView):
     model = Product
@@ -47,8 +60,6 @@ class ProductDeleteView(DeleteView):
     template_name = 'product_delete.html'
     success_url = reverse_lazy('product')
 
-
-
 from datetime import datetime, date, time
 import pytz
 
@@ -67,9 +78,9 @@ class HopperFillView(LoginRequiredMixin, CreateView):
     form_class = HopperFillForm
     model = HopperFillData
     template_name = 'hopper_fill.html'
-    success_url = reverse_lazy('home')
+    success_url = "/"
+    paginate_by = 50
 
-    
     def form_valid(self, form):
         no_mesin = form.cleaned_data['no_mesin']
         product = form.cleaned_data['product']
@@ -165,11 +176,19 @@ def export_hopper_xls(request):
                 'product__material', 'no_lot', 'temp', 'tanggal', 
                 'jumlah_isi', 'jam_isi', 'shift', 'pic').distinct()
 
-    for row in rows:
-        row_num+=1
+    if row <= 1000:
+        for row in rows:
+            row_num+=1
 
-        for col_num in range(len(row)):
-            ws.write(row_num, col_num, str(row[col_num]), font_style)
+            for col_num in range(len(row)):
+                ws.write(row_num, col_num, str(row[col_num]), font_style)
+    else:
+        first_1k = rows[0:1001]
+        for row in first_1k:
+            row_num+=1
+
+            for col_num in range(len(row)):
+                ws.write(row_num, col_num, str(row[col_num]), font_style)
 
     wb.save(response)
 
@@ -209,6 +228,21 @@ def export_hopper_xlsx(request):
     jam_isi = HopperFillData.objects.values_list('jam_isi', flat=True)
     shift = HopperFillData.objects.values_list('shift', flat=True)
     pic = HopperFillData.objects.values_list('pic', flat=True)
+
+    data_row = len(no_mesin)
+    if data_row > 1000:
+        no_mesin = no_mesin[0:1001]
+        part_id = part_id[0:1001]
+        part_name = part_name[0:1001]
+        material = material[0:1001]
+        no_lot = no_lot[0:1001]
+        temp = temp[0:1001]
+        tanggal = tanggal[0:1001]
+        jumlah_isi = jumlah_isi[0:1001]
+        jam_isi = jam_isi[0:1001]
+        shift = shift[0:1001]
+        pic = pic[0:1001]
+
 
     r = 1
     c = 0

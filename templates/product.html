@@ -3,7 +3,18 @@
 
 {% block content %} 
 
-<p style="text-align: right;"><a href="{% url 'product_input'%}">Add New Product</a></p>
+<div class="container" style="margin-bottom: 2em;">
+    <div class="row">
+        <div class="form-group name1 col-md-6">
+            <form class="form-inline mt-2 mt-md-0" action="{% url 'product' %}" method="get" style="text-align:left; width: 25em;">
+                <input name="q" class="form-control mr-sm-2" type="text" placeholder="Search Product" aria-label="Search Product">
+            </form>
+        </div>
+        <div class="form-group name2 col-md-6">
+            <p  style="text-align: right;"><a href="{% url 'product_input'%}">Add New Product</a></p>
+        </div>
+    </div>
+</div>
 
 <div>
     <table style="border: 1px solid white;">
@@ -22,7 +33,37 @@
     </table>
 </div>
 
-
+<nav aria-label="Page navigation example" style="padding-top: 3em;">
+    {% if is_paginated %}
+    <ul class="pagination justify-content-center .pagination-sm">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.previous_page_number}}"
+          >&laquo;</a
+        >
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <a class="page-link" href="#">&laquo;</a>
+      </li>
+      {% endif %} {% for i in paginator.page_range %} {% if page_obj.number == i %}
+      <li class="page-item"><a class="page-link active bg-primary bg-opacity-25">{{ i }}</a></li>
+      {% else %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+      </li>
+      {% endif %} {% endfor %} {% if page_obj.has_next %}
+      <li class="page-item">
+        <a href="?page={{page_obj.next_page_number}}" class="page-link">&raquo;</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <a class="page-link">&raquo;</a>
+      </li>
+      {% endif %}
+    </ul>
+    {% endif %}
+  </nav>
 
 
 {% endblock content %}

@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test, per
 
 from material.models import HopperFillData
 
-from .views import ProductDeleteView, ProductDetailView, ProductListView, ProductCreateView, ProductUpdateView, HopperFillView, HopperDataListView
+from .views import ProductDeleteView, ProductDetailView, ProductListView, ProductCreateView, ProductUpdateView#, ProductSearchListView
+from .views import HopperFillView, HopperDataListView
 from .views import export_hopper_xls, export_hopper_xlsx
 
 urlpatterns = [

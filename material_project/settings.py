@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-0-wj!%5n^@r^kp!v7gd-omhxd3@jx%=igvtgd@hgojkh4hh4yo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','10.0.1.66']
+ALLOWED_HOSTS = ['.heroku.com', '127.0.0.1', '10.0.1.66']
 
 
 # Application definition
@@ -44,10 +44,15 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'import_export',
     'fontawesomefree',
+    'django_select2',
+    'django_redis',
 
     #custom app
     'material.apps.MaterialConfig',
     'account.apps.AccountConfig',
+
+    #db
+    #'material_hopper',
     
 ]
 
@@ -87,8 +92,12 @@ WSGI_APPLICATION = 'material_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'asd123asd',
+        'HOST' : 'localhost',
+        'PORT' : 5432,
     }
 }
 
@@ -125,6 +134,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = 'static/'
 
 # Default primary key field type
@@ -148,3 +158,30 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_PASSWORD = 'ASD123asd!@#'
+
+
+""""
+CACHES = {
+    "default" : {
+        "BACKEND" : "django_redis.cache.RedisCache",
+        "LOCATION" : "redis://127.0.0.1:6379/1",
+        "OPTIONS" : {
+            "CLIENT_CLASS" : "django_redis.client.DefaultClient",
+        }
+    },
+    "select2" : {
+        "BACKEND" : "django_redis.cache.RedisCache",
+        "LOCATION" : "redis://127.0.0.1:6379/2",
+        "OPTIONS" : {
+            "CLIENT_CLASS" : "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+SELECT2_CACHE_BACKEND = "select2"
+
+SELECT2_JS = 'script/select2/js/select2.min.js'
+SELECT2_CSS = 'script/select2/css/select2.css'
+SELECT2_I18N_PATH = 'script/select2/js/i18n'
+
+"""

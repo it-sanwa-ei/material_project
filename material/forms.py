@@ -1,14 +1,19 @@
+from random import choices
 from django import forms
 from django.forms import ModelForm
 from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse
+from django.db.models import Q
 
 from material_project import settings
 
 from datetime import datetime, date, time
 import pytz
 
+from django_select2.forms import Select2Widget, ModelSelect2Widget
+
 from .models import HopperFillData, Product
+
 
 class HopperFillForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -22,13 +27,12 @@ class HopperFillForm(ModelForm):
         self.fields['shift'].initial = 'Shift 1'
         self.fields['pic'].widget = forms.HiddenInput()
         self.fields['pic'].initial = None
-
-
+        
     class Meta:
         model = HopperFillData
         fields = '__all__'
         labels = {  'no_mesin' : ('No Mesin'),
-                    'part_id' : ('Part ID'),
+                    'product' : ('Product'),
                     'no_lot' : ('No Lot'),
                     'temp' : ('Temperature (°C)'),
                     'tanggal' : ('Tanggal'),
@@ -37,13 +41,11 @@ class HopperFillForm(ModelForm):
                     'pic' : ('PIC'), 
         }
 
-        field_order = [ 'no_mesin', 'part_id', 'no_lot',
+        field_order = [ 'no_mesin', 'product', 'no_lot',
                         'temp', 'tanggal', 'jumlah_isi',
                         'jam_isi', 'pic', 'shift']
 
-    #tanggal = forms.DateField(input_formats=settings.DATE_FORMAT, widget=forms.SelectDateWidget, initial=date.today().strftime('%d/%m/%Y'))
-    #jam_isi = forms.TimeField(input_formats=settings.TIME_FORMAT, widget=forms.TimeInput, initial=datetime.today().strftime('%H:%M'))
-    
+   
 
 
 
