@@ -63,6 +63,9 @@ class HopperFillData(models.Model):
 
     def __str__(self):
         return self.no_mesin
+    
+    def get_absolute_url(self):
+        return reverse('hopper_fill_data')
 
 
 

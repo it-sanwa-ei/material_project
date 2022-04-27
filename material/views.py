@@ -40,10 +40,7 @@ class ProductListView(ListView):
         else:
             return Product.objects.all().order_by('id')
     
-
-        
-        
-
+    
 class ProductDetailView(DetailView):
     model = Product
     template_name = 'product_detail.html'
@@ -114,6 +111,17 @@ class HopperDataListView(ListView):
     template_name = 'hopper_fill_data.html'
     context_object_name = 'hopper_fill_data_list'
     paginate_by = 50
+
+class HopperDataUpdateView(UpdateView):
+    model = HopperFillData
+    template_name = 'hopper_fill_edit.html'
+    fields = ('no_mesin','product','no_lot','temp','tanggal','jumlah_isi','jam_isi')
+
+class HopperDataDeleteView(DeleteView):
+    model = HopperFillData
+    template_name = 'hopper_fill_delete.html'
+    context_object_name = 'hopper_delete'
+    success_url = reverse_lazy('hopper_fill_data')
 
 class ExportProduct(View):
     def __init__(self, request):

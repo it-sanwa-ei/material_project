@@ -1,0 +1,12 @@
+{% extends 'base.html' %} 
+{% load crispy_forms_tags %}
+
+{% block title %}Log In{% endblock title%}
+
+{% block content %} 
+<h3>Need admin approval</h3>
+<p>Only user with Admin level can access this page.</p>
+<p><a href="{% url 'login' %}">Have an admin account? Sign in with that account</a></p>
+
+
+{% endblock content %}
