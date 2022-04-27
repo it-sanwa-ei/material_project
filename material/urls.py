@@ -9,7 +9,7 @@ from .views import HopperFillView, HopperDataListView
 from .views import export_hopper_xls, export_hopper_xlsx
 
 urlpatterns = [
-    path('', ProductListView.as_view(), name='product'),
+    path('product/', ProductListView.as_view(), name='product'),
     path('product/<int:pk>/', ProductDetailView.as_view(), name='product_detail'),
     path('product/new/', staff_member_required(ProductCreateView.as_view()), name='product_input'),
     path('product/<int:pk>/edit/', staff_member_required(ProductUpdateView.as_view()), name='product_edit'),

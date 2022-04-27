@@ -38,7 +38,10 @@ class ProductListView(ListView):
         if query:
             return Product.objects.filter( Q(part_id__icontains=query) | Q(part_name__icontains=query) | Q(material__icontains=query))
         else:
-            return Product.objects.all()
+            return Product.objects.all().order_by('id')
+    
+
+        
         
 
 class ProductDetailView(DetailView):
@@ -176,7 +179,7 @@ def export_hopper_xls(request):
                 'product__material', 'no_lot', 'temp', 'tanggal', 
                 'jumlah_isi', 'jam_isi', 'shift', 'pic').distinct()
 
-    if row <= 1000:
+    if len(rows) <= 1000:
         for row in rows:
             row_num+=1
 
