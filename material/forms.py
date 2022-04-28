@@ -27,7 +27,7 @@ class HopperFillForm(ModelForm):
         self.fields['shift'].initial = 'Shift 1'
         self.fields['pic'].widget = forms.HiddenInput()
         self.fields['pic'].initial = None
-        
+
     class Meta:
         model = HopperFillData
         fields = '__all__'

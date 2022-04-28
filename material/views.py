@@ -111,6 +111,7 @@ class HopperDataListView(ListView):
     template_name = 'hopper_fill_data.html'
     context_object_name = 'hopper_fill_data_list'
     paginate_by = 50
+    ordering = ['-id']
 
 class HopperDataUpdateView(UpdateView):
     model = HopperFillData
@@ -186,28 +187,17 @@ def export_hopper_xlsx(request):
         ws.write(row_num, col_num, columns[col_num], bold)
 
     
-    no_mesin = HopperFillData.objects.values_list('no_mesin', flat=True)
-    no_mesin = reversed(list(no_mesin))
-    part_id = HopperFillData.objects.values_list('product__part_id', flat=True)
-    part_id = reversed(list(part_id))
-    part_name = HopperFillData.objects.values_list('product__part_name', flat=True)
-    part_name = reversed(list(part_name))
-    material = HopperFillData.objects.values_list('product__material', flat=True)
-    material = reversed(list(material))
-    no_lot = HopperFillData.objects.values_list('no_lot', flat=True)
-    no_lot = reversed(list(no_lot))
-    temp = HopperFillData.objects.values_list('temp', flat=True)
-    temp = reversed(list(temp))
-    tanggal = HopperFillData.objects.values_list('tanggal', flat=True)
-    tanggal = reversed(list(tanggal))
-    jumlah_isi = HopperFillData.objects.values_list('jumlah_isi', flat=True)
-    jumlah_isi = reversed(list(jumlah_isi))
-    jam_isi = HopperFillData.objects.values_list('jam_isi', flat=True)
-    jam_isi = reversed(list(jam_isi))
-    shift = HopperFillData.objects.values_list('shift', flat=True)
-    shift = reversed(list(shift))
-    pic = HopperFillData.objects.values_list('pic', flat=True)
-    pic = reversed(list(pic))
+    no_mesin = HopperFillData.objects.values_list('no_mesin', flat=True).order_by('-id')
+    part_id = HopperFillData.objects.values_list('product__part_id', flat=True).order_by('-id')
+    part_name = HopperFillData.objects.values_list('product__part_name', flat=True).order_by('-id')
+    material = HopperFillData.objects.values_list('product__material', flat=True).order_by('-id')
+    no_lot = HopperFillData.objects.values_list('no_lot', flat=True).order_by('-id')
+    temp = HopperFillData.objects.values_list('temp', flat=True).order_by('-id')
+    tanggal = HopperFillData.objects.values_list('tanggal', flat=True).order_by('-id')
+    jumlah_isi = HopperFillData.objects.values_list('jumlah_isi', flat=True).order_by('-id')
+    jam_isi = HopperFillData.objects.values_list('jam_isi', flat=True).order_by('-id')
+    shift = HopperFillData.objects.values_list('shift', flat=True).order_by('-id')
+    pic = HopperFillData.objects.values_list('pic', flat=True).order_by('-id')
 
     data_row = len(no_mesin)
     if data_row > 10000:
