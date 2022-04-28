@@ -111,7 +111,6 @@ class HopperDataListView(ListView):
     template_name = 'hopper_fill_data.html'
     context_object_name = 'hopper_fill_data_list'
     paginate_by = 50
-    ordering = ['-date_created']
 
 class HopperDataUpdateView(UpdateView):
     model = HopperFillData
