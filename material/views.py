@@ -163,48 +163,6 @@ class ImportProduct(View):
 
         return render(request=self.request, template_name=self.template)
 
-def export_hopper_xls(request):
-    request = request
-
-    response = HttpResponse(content_type = 'application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename = Hopper Fill Data ' + str(datetime.now().strftime('%d-%m-%Y')) + '.xls'
-    
-    wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('Hopper Fill Data')
-    row_num = 0
-    font_style = xlwt.XFStyle()
-    font_style.font.bold = True
-
-    columns = [ 'No Mesin', 'Part ID', 'Part Name',
-                'Product Material', 'No Lot', 'Temperature', 'Tanggal', 
-                'Jumlah Isi', 'Jam Isi', 'Shift', 'PIC']
-
-    for col_num in range(len(columns)):
-        ws.write(row_num, col_num, columns[col_num], font_style)
-
-    font_style = xlwt.XFStyle()
-    rows = HopperFillData.objects.values_list('no_mesin', 'product__part_id', 'product__part_name',
-                'product__material', 'no_lot', 'temp', 'tanggal', 
-                'jumlah_isi', 'jam_isi', 'shift', 'pic').distinct()
-
-    if len(rows) <= 1000:
-        for row in rows:
-            row_num+=1
-
-            for col_num in range(len(row)):
-                ws.write(row_num, col_num, str(row[col_num]), font_style)
-    else:
-        first_1k = rows[0:1001]
-        for row in first_1k:
-            row_num+=1
-
-            for col_num in range(len(row)):
-                ws.write(row_num, col_num, str(row[col_num]), font_style)
-
-    wb.save(response)
-
-    return response
-
 def export_hopper_xlsx(request):
     request = request
 
@@ -229,30 +187,41 @@ def export_hopper_xlsx(request):
 
     
     no_mesin = HopperFillData.objects.values_list('no_mesin', flat=True)
+    no_mesin = no_mesin.reverse()
     part_id = HopperFillData.objects.values_list('product__part_id', flat=True)
+    part_id = part_id.reverse()
     part_name = HopperFillData.objects.values_list('product__part_name', flat=True)
+    part_name = part_name.reverse()
     material = HopperFillData.objects.values_list('product__material', flat=True)
+    material = material.reverse()
     no_lot = HopperFillData.objects.values_list('no_lot', flat=True)
+    no_lot = no_lot.reverse()
     temp = HopperFillData.objects.values_list('temp', flat=True)
+    temp = temp.reverse()
     tanggal = HopperFillData.objects.values_list('tanggal', flat=True)
+    tanggal = tanggal.reverse()
     jumlah_isi = HopperFillData.objects.values_list('jumlah_isi', flat=True)
+    jumlah_isi = jumlah_isi.reverse()
     jam_isi = HopperFillData.objects.values_list('jam_isi', flat=True)
+    jam_isi = jam_isi.reverse()
     shift = HopperFillData.objects.values_list('shift', flat=True)
+    shift = shift.reverse()
     pic = HopperFillData.objects.values_list('pic', flat=True)
+    pic = pic.reverse()
 
     data_row = len(no_mesin)
-    if data_row > 1000:
-        no_mesin = no_mesin[0:1001]
-        part_id = part_id[0:1001]
-        part_name = part_name[0:1001]
-        material = material[0:1001]
-        no_lot = no_lot[0:1001]
-        temp = temp[0:1001]
-        tanggal = tanggal[0:1001]
-        jumlah_isi = jumlah_isi[0:1001]
-        jam_isi = jam_isi[0:1001]
-        shift = shift[0:1001]
-        pic = pic[0:1001]
+    if data_row > 10000:
+        no_mesin = no_mesin[0:10001]
+        part_id = part_id[0:10001]
+        part_name = part_name[0:10001]
+        material = material[0:10001]
+        no_lot = no_lot[0:10001]
+        temp = temp[0:10001]
+        tanggal = tanggal[0:10001]
+        jumlah_isi = jumlah_isi[0:10001]
+        jam_isi = jam_isi[0:10001]
+        shift = shift[0:10001]
+        pic = pic[0:10001]
 
 
     r = 1

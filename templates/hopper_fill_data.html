@@ -3,13 +3,14 @@
 
 {% block content %} 
 
-<div>
-<button class="btn btn-success"><a href="{% url 'export_hopper_xlsx' %}" style="color: white;">Export Excel (.xlsx)</a></button>
-<button class="btn btn-light border-dark"><a href="{% url 'export_hopper_xls' %}" style="color: green;">Export Excel (.xls)</a></button>
-</div>
+<div style="display: table; clear: both; content: ''; width: 100%; padding-bottom: 1em;">
+  <div style="float: left;">
+  <button class="btn btn-success"><a href="{% url 'export_hopper_xlsx' %}" style="color: white;">Export Excel (.xlsx)</a></button>
+  </div>
 
-<div>
-<p style="text-align: right;"><a href="{% url 'hopper_fill'%}">Add New Hopper Fill Data</a></p>
+  <div style="float: right;">
+  <button class="btn btn-white" style="border: 1px solid black;"><a href="{% url 'hopper_fill'%}">Add New Hopper Fill Data</a></button>
+  </div>
 </div>
 
 <div>
@@ -20,9 +21,9 @@
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Product Name</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Material</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">No Lot</th>
-            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Temperature</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Temperature (°C)</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Tanggal</th>
-            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Jumlah Isi</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Jumlah Isi (kg)</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Jam Isi</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Shift</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">PIC</th>
@@ -41,8 +42,8 @@
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.jam_isi|time:"H:i"}}</td>
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.shift}}</td>
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pic}}</td>
-            <td style="width: 10em; border: 1px solid white; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_edit' hopper_fill_data.pk %}"><i class="fa-solid fa-pen"></i></a></td>
-            <td style="width: 10em; border: 1px solid white; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_delete' hopper_fill_data.pk %}"><i class="fa-solid fa-trash-can"></i></a></td>
+            <td style="width: 10em; border: 1px solid white; border-right: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_edit' hopper_fill_data.pk %}"><i class="fa-solid fa-pen"></i></a></td>
+            <td style="width: 10em; border: 1px solid white; border-left: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_delete' hopper_fill_data.pk %}"><i class="fa-solid fa-trash-can"></i></a></td>
         </tr>
         {% endfor %}
     </table>

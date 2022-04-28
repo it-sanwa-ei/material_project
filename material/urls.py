@@ -7,7 +7,7 @@ from material.models import HopperFillData
 
 from .views import ProductDeleteView, ProductDetailView, ProductListView, ProductCreateView, ProductUpdateView#, ProductSearchListView
 from .views import HopperFillView, HopperDataListView, HopperDataUpdateView, HopperDataDeleteView
-from .views import export_hopper_xls, export_hopper_xlsx
+from .views import export_hopper_xlsx
 
 urlpatterns = [
     path('product/', ProductListView.as_view(), name='product'),
@@ -20,5 +20,4 @@ urlpatterns = [
     path('product/hopper_fill_data/<int:pk>/edit/', login_required(HopperDataUpdateView.as_view(), login_url='login'), name='hopper_fill_edit'),
     path('product/hopper_fill_data/<int:pk>/delete/', staff_member_required(HopperDataDeleteView.as_view(), login_url='login_admin'), name='hopper_fill_delete'),
     path('product/hopper_fill_data/export_hopper_xlsx/', export_hopper_xlsx, name='export_hopper_xlsx'),
-    path('product/hopper_fill_data/export_hopper_xls/', export_hopper_xls, name='export_hopper_xls'),
 ]
