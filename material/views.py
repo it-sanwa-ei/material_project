@@ -339,11 +339,12 @@ def get_material_used_per_day(no_mesin, part_id, part_name, material, no_lot, te
 def export_material_usage(request):
     if request.method == 'POST':
         request_date = request.POST.get('request_date')
-        request_date = datetime.strptime(request_date, '%Y-%m-%d')
+        if request_date:
+            request_date = datetime.strptime(request_date, '%Y-%m-%d')
+        else:
+            request_date = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
     else:
-        request_date = date.today()
-
-    print(request_date)
+        pass
 
     output = io.BytesIO()
     
