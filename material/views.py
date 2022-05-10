@@ -18,6 +18,9 @@ import xlwt
 import xlsxwriter
 import io
 
+from datetime import datetime, date, time, timedelta
+import pytz
+
 # Create your views here.
 from .models import Product, HopperFillData
 from .forms import HopperFillForm
@@ -60,8 +63,6 @@ class ProductDeleteView(DeleteView):
     template_name = 'product_delete.html'
     success_url = reverse_lazy('product')
 
-from datetime import datetime, date, time
-import pytz
 
 tz = pytz.timezone('Asia/Jakarta')
 date_format = '%d/%m/%Y'

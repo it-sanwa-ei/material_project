@@ -27,5 +27,22 @@ class CustomAdminProduct(ImportExportMixin, admin.ModelAdmin):
         )
         return [f for f in formats if f().can_import()]
 
+class CustomAdminHopperFill(ImportExportMixin, admin.ModelAdmin):
+    def get_import_formats(self):
+        formats = (
+            base_formats.XLS,
+            base_formats.XLSX,
+        )
+        return [f for f in formats if f().can_import()]
+
+    def get_export_formats(self):
+        formats = (
+            base_formats.XLS,
+            base_formats.XLSX,
+            base_formats.CSV,
+            base_formats.TSV,
+        )
+        return [f for f in formats if f().can_import()]
+
 admin.site.register(Product, CustomAdminProduct)
-admin.site.register(HopperFillData, admin.ModelAdmin)
+admin.site.register(HopperFillData, CustomAdminHopperFill)
