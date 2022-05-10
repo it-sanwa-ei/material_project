@@ -5,23 +5,38 @@
 
 <div style="display: table; clear: both; content: ''; width: 100%; padding-bottom: 1em;">
   <div style="float: left;">
-  <button class="btn btn-success"><a href="{% url 'export_hopper_xlsx' %}" style="color: white;">Export Excel (.xlsx)</a></button>
+  <button class="btn btn-success"><a href="{% url 'export_hopper_xlsx' %}" style="color: white; text-decoration: none;">Export Excel</a></button>
+  </div>
+
+  <div style="float: left; padding-left: 2em;">
+    <form method="post" action="{% url 'export_material_usage' %}">
+      <div class="row">
+        {% csrf_token %}
+        <div class="col">
+          <input type="date" name="request_date" id="request_date" class="form-control">
+        </div>
+        <div class="col">
+          <input type="submit" value="Export Material Usage Report" class="btn btn-primary">
+        </div>
+      </div>  
+    </form>
   </div>
 
   <div style="float: right;">
-  <button class="btn btn-white" style="border: 1px solid black;"><a href="{% url 'hopper_fill'%}">Add New Hopper Fill Data</a></button>
+  <button class="btn btn-white" style="border: 1px solid black;"><a href="{% url 'hopper_fill'%}" style="text-decoration: none;">Add New Hopper Fill Data</a></button>
   </div>
 </div>
 
 <div>
     <table style="border: 1px solid white;">
         <tr style="border: 1px solid white;">
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">No</th>
 		        <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">No Mesin</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Product ID</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Product Name</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Material</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">No Lot</th>
-            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Temperature (°C)</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Temp (°C)</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Tanggal</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Jumlah Isi (kg)</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Jam Isi</th>
@@ -31,19 +46,20 @@
         </tr>
         {% for hopper_fill_data in hopper_fill_data_list %} 
         <tr style="border: 1px solid white;">
-		        <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.no_mesin}}</td>
-            <td style="width: 80em; border: 1px solid white; background-color: lightblue; text-align: center;"><a href="{% url 'product_detail' hopper_fill_data.product.pk %}">{{hopper_fill_data.product.part_id}}</a></td>
-            <td style="width: 150em; border: 1px solid white; background-color: lightblue;">{{hopper_fill_data.product.part_name}}</td>
-            <td style="width: 150em; border: 1px solid white; background-color: lightblue;">{{hopper_fill_data.product.material}}</td>
+            <td style="width: 5em; border: 1px solid white; background-color: lightblue; text-align: center;">{{forloop.counter}}</td>
+		        <td style="width: 20em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.no_mesin}}</td>
+            <td style="width: 75em; border: 1px solid white; background-color: lightblue; text-align: center;"><a href="{% url 'product_detail' hopper_fill_data.product.pk %}">{{hopper_fill_data.product.part_id}}</a></td>
+            <td style="width: 200em; border: 1px solid white; background-color: lightblue; font-size: small;">{{hopper_fill_data.product.part_name}}</td>
+            <td style="width: 150em; border: 1px solid white; background-color: lightblue; font-size: small;">{{hopper_fill_data.product.material}}</td>
             <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.no_lot}}</td>
             <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.temp}}</td>
-            <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.tanggal|date:"d-M-Y"}}</td>
+            <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center; font-size: small;">{{hopper_fill_data.tanggal|date:"d-M-Y"}}</td>
             <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.jumlah_isi}}</td>
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.jam_isi|time:"H:i"}}</td>
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.shift}}</td>
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pic}}</td>
-            <td style="width: 10em; border: 1px solid white; border-right: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_edit' hopper_fill_data.pk %}"><i class="fa-solid fa-pen"></i></a></td>
-            <td style="width: 10em; border: 1px solid white; border-left: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_delete' hopper_fill_data.pk %}"><i class="fa-solid fa-trash-can"></i></a></td>
+            <td style="width: 15em; border: 1px solid white; border-right: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_edit' hopper_fill_data.pk %}"><i class="fa-solid fa-pen"></i></a></td>
+            <td style="width: 15em; border: 1px solid white; border-left: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_delete' hopper_fill_data.pk %}"><i class="fa-solid fa-trash-can"></i></a></td>
         </tr>
         {% endfor %}
     </table>

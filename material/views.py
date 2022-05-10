@@ -199,20 +199,23 @@ def export_hopper_xlsx(request):
     shift = HopperFillData.objects.values_list('shift', flat=True).order_by('-id')
     pic = HopperFillData.objects.values_list('pic', flat=True).order_by('-id')
 
+    
+
     data_row = len(no_mesin)
     if data_row > 10000:
-        no_mesin = no_mesin[0:10001]
-        part_id = part_id[0:10001]
-        part_name = part_name[0:10001]
-        material = material[0:10001]
-        no_lot = no_lot[0:10001]
-        temp = temp[0:10001]
-        tanggal = tanggal[0:10001]
-        jumlah_isi = jumlah_isi[0:10001]
-        jam_isi = jam_isi[0:10001]
-        shift = shift[0:10001]
-        pic = pic[0:10001]
+        no_mesin = no_mesin[0:10000]
+        part_id = part_id[0:10000]
+        part_name = part_name[0:10000]
+        material = material[0:10000]
+        no_lot = no_lot[0:10000]
+        temp = temp[0:10000]
+        tanggal = tanggal[0:10000]
+        jumlah_isi = jumlah_isi[0:10000]
+        jam_isi = jam_isi[0:10000]
+        shift = shift[0:10000]
+        pic = pic[0:10000]
 
+    
 
     r = 1
     c = 0
@@ -264,8 +267,175 @@ def export_hopper_xlsx(request):
 
     output.seek(0)
 
-    response = HttpResponse(output.read(), content_type = 'pplication/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename = Hopper Fill Data ' + str(datetime.now().strftime('%d-%m-%Y')) + '.xlsx'
 
     return response
 
+def get_material_used_per_day(no_mesin, part_id, part_name, material, no_lot, temp, tanggal, jumlah_isi, jam_isi, shift, pic):
+    no_mesin = no_mesin.order_by('-tanggal')
+    part_id = part_id.order_by('-tanggal')
+    part_name = part_name.order_by('-tanggal')
+    material = material.order_by('-tanggal')
+    no_lot = no_lot.order_by('-tanggal')
+    temp = temp.order_by('-tanggal')
+    tanggal = tanggal.order_by('-tanggal')
+    jumlah_isi = jumlah_isi.order_by('-tanggal')
+    jam_isi = jam_isi.order_by('-tanggal')
+    shift = shift.order_by('-tanggal')
+    pic = pic.order_by('-tanggal')
+
+    temp_qs = []
+
+    for i in range(0, len(no_mesin)):
+        q = [no_mesin[i], part_id[i], part_name[i], material[i], no_lot[i], temp[i], tanggal[i],
+         jumlah_isi[i], jam_isi[i], shift[i], pic[i]]
+        temp_qs.append(q)
+
+    gr_start_id = []
+    gr_start_id.append(0)
+
+    gr = 1
+
+    for i in range(0, len(temp_qs)):
+        try:
+            if temp_qs[i][6] != temp_qs[i+1][6]:
+                gr += 1
+                gr_start_id.append(i+1)
+            else:
+                pass
+        except IndexError:
+            pass
+    
+    def gr_per_date(gr_t, gr_st_id):
+        gr_qs = []
+        for g in range(0, len(gr_st_id)-1):
+            gr_qs.append(gr_t[gr_st_id[g]:gr_st_id[g+1]])
+        gr_qs.append(gr_t[gr_st_id[-1]:len(gr_t)])
+        return gr_qs
+
+    gr_qs = gr_per_date(temp_qs, gr_start_id)
+
+    def gr_per_mat(gr_qs):
+        mat = []
+        result = []
+        for qs in gr_qs:
+            for q in qs:
+                if q[3] not in mat:
+                    mat.append(q[3])
+
+            for m in mat:
+                amount = 0
+                for q in qs:
+                    if q[3] == m:
+                        amount += q[7]
+                result.append([qs[0][6], m, amount])
+        return result
+
+    result = gr_per_mat(gr_qs) 
+    return result
+
+def export_material_usage(request):
+    if request.method == 'POST':
+        request_date = request.POST.get('request_date')
+        request_date = datetime.strptime(request_date, '%Y-%m-%d')
+    else:
+        request_date = date.today()
+
+    print(request_date)
+
+    output = io.BytesIO()
+    
+    wb = xlsxwriter.Workbook(output, {'in_memory':True})
+    ws_1 = wb.add_worksheet(name = 'Material Usage Report - Daily')
+    ws_2 = wb.add_worksheet(name = 'Material Usage Report - Weekly')
+    ws_3 = wb.add_worksheet(name = 'Material Usage Report - Monthly')
+
+    bold = wb.add_format({'bold':True})
+    date_format = wb.add_format({'num_format':'d mmm yyyy'})
+    
+    no_mesin = HopperFillData.objects.values_list('no_mesin', flat=True).order_by('-id')
+    part_id = HopperFillData.objects.values_list('product__part_id', flat=True).order_by('-id')
+    part_name = HopperFillData.objects.values_list('product__part_name', flat=True).order_by('-id')
+    material = HopperFillData.objects.values_list('product__material', flat=True).order_by('-id')
+    no_lot = HopperFillData.objects.values_list('no_lot', flat=True).order_by('-id')
+    temp = HopperFillData.objects.values_list('temp', flat=True).order_by('-id')
+    tanggal = HopperFillData.objects.values_list('tanggal', flat=True).order_by('-id')
+    jumlah_isi = HopperFillData.objects.values_list('jumlah_isi', flat=True).order_by('-id')
+    jam_isi = HopperFillData.objects.values_list('jam_isi', flat=True).order_by('-id')
+    shift = HopperFillData.objects.values_list('shift', flat=True).order_by('-id')
+    pic = HopperFillData.objects.values_list('pic', flat=True).order_by('-id')
+
+    daily_material_usage = get_material_used_per_day(no_mesin=no_mesin, part_id=part_id, part_name=part_name,
+                            material=material, no_lot=no_lot, temp=temp, tanggal=tanggal, jumlah_isi=jumlah_isi,
+                            jam_isi=jam_isi, shift=shift, pic=pic)
+
+    x, y = 1, 0
+    ws_1.write(0, 0, 'Tanggal', bold)
+    ws_1.write(0, 1, 'Material', bold)
+    ws_1.write(0, 2, 'Jumlah yang digunakan (kg)', bold)
+
+    #untuk ws_1 (daily)
+    for dl in daily_material_usage:
+        if dl[2] != 0:
+            if dl[0] == request_date.date():
+                ws_1.write_datetime(x, y, dl[0], date_format)
+                ws_1.write_string(x, y+1, dl[1])
+                ws_1.write_number(x, y+2, dl[2])
+                x += 1
+            else:
+                pass
+        else:
+            pass
+    pass
+
+    x, y = 1, 0
+    ws_2.write(0, 0, 'Tanggal', bold)
+    ws_2.write(0, 1, 'Material', bold)
+    ws_2.write(0, 2, 'Jumlah yang digunakan (kg)', bold)
+
+    #untuk ws_2 (weekly)
+    date_start = request_date.date()
+    date_end = request_date.date() - timedelta(days=7)
+    for dl in daily_material_usage:
+        if dl[2] != 0:
+            if dl[0] <= date_start and dl[0] >= date_end:
+                ws_2.write_datetime(x, y, dl[0], date_format)
+                ws_2.write_string(x, y+1, dl[1])
+                ws_2.write_number(x, y+2, dl[2])
+                x += 1
+            else:
+                pass
+        else:
+            pass
+    pass
+
+    x, y = 1, 0
+    ws_3.write(0, 0, 'Tanggal', bold)
+    ws_3.write(0, 1, 'Material', bold)
+    ws_3.write(0, 2, 'Jumlah yang digunakan (kg)', bold)
+
+    #untuk ws_3 (monthly)
+    date_start = request_date.date()
+    date_end = request_date.date() - timedelta(days=30)
+    for dl in daily_material_usage:
+        if dl[2] != 0:
+            if dl[0] <= date_start and dl[0] >= date_end:
+                ws_3.write_datetime(x, y, dl[0], date_format)
+                ws_3.write_string(x, y+1, dl[1])
+                ws_3.write_number(x, y+2, dl[2])
+                x += 1
+            else:
+                pass
+        else:
+            pass
+    pass
+
+    wb.close()
+
+    output.seek(0)
+
+    response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename = Material Usage Report ' + str(request_date.strftime('%d-%m-%Y')) + '.xlsx'
+
+    return response
