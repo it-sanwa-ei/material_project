@@ -5,6 +5,7 @@ from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.views.generic.list import BaseListView
 from django.views.generic.edit import UpdateView, DeleteView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.core import signing
@@ -165,8 +166,44 @@ class ImportProduct(View):
 
         return render(request=self.request, template_name=self.template)
 
+
+def recursive_date_start(ds, tgl_list):
+    if ds not in tgl_list:
+        ds += timedelta(days=1)
+        recursive_date_start(ds, tgl_list)
+    else:
+        ds_index = list(tgl_list).index(ds)
+        return ds_index
+
+def recursive_date_end(de, tgl_list):
+    if de not in tgl_list:
+        de -= timedelta(days=1)
+        recursive_date_end(de, tgl_list)
+    else:
+        de_index = len(list(tgl_list)) - (list(tgl_list)[::-1].index(de))
+        return de_index
+
+def dates_between(sd, ed):
+    delta = ed - sd
+    days = []
+    for i in range(delta.days + 1):
+        days.append(sd + timedelta(days=i))
+    return days
+
 def export_hopper_xlsx(request):
-    request = request
+    if request.method == 'POST':
+        if request.POST.get('request_date_start') and request.POST.get('request_date_end'):
+            print(request.POST.get('request_date_start'))
+            print(request.POST.get('request_date_end'))
+            request_date_start = request.POST.get('request_date_start')
+            request_date_end = request.POST.get('request_date_end')
+            request_date_start = datetime.strptime(request_date_start, '%Y-%m-%d')
+            request_date_end = datetime.strptime(request_date_end, '%Y-%m-%d')
+        else:
+            request_date_start = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+            request_date_end = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+    else:
+        pass
 
     output = io.BytesIO()
     
@@ -188,90 +225,110 @@ def export_hopper_xlsx(request):
         ws.write(row_num, col_num, columns[col_num], bold)
 
     
-    no_mesin = HopperFillData.objects.values_list('no_mesin', flat=True).order_by('-id')
-    part_id = HopperFillData.objects.values_list('product__part_id', flat=True).order_by('-id')
-    part_name = HopperFillData.objects.values_list('product__part_name', flat=True).order_by('-id')
-    material = HopperFillData.objects.values_list('product__material', flat=True).order_by('-id')
-    no_lot = HopperFillData.objects.values_list('no_lot', flat=True).order_by('-id')
-    temp = HopperFillData.objects.values_list('temp', flat=True).order_by('-id')
-    tanggal = HopperFillData.objects.values_list('tanggal', flat=True).order_by('-id')
-    jumlah_isi = HopperFillData.objects.values_list('jumlah_isi', flat=True).order_by('-id')
-    jam_isi = HopperFillData.objects.values_list('jam_isi', flat=True).order_by('-id')
-    shift = HopperFillData.objects.values_list('shift', flat=True).order_by('-id')
-    pic = HopperFillData.objects.values_list('pic', flat=True).order_by('-id')
+    no_mesin = HopperFillData.objects.values_list('no_mesin', flat=True).order_by('tanggal', 'jam_isi')
+    part_id = HopperFillData.objects.values_list('product__part_id', flat=True).order_by('tanggal', 'jam_isi')
+    part_name = HopperFillData.objects.values_list('product__part_name', flat=True).order_by('tanggal', 'jam_isi')
+    material = HopperFillData.objects.values_list('product__material', flat=True).order_by('tanggal', 'jam_isi')
+    no_lot = HopperFillData.objects.values_list('no_lot', flat=True).order_by('tanggal', 'jam_isi')
+    temp = HopperFillData.objects.values_list('temp', flat=True).order_by('tanggal', 'jam_isi')
+    tanggal = HopperFillData.objects.values_list('tanggal', flat=True).order_by('tanggal', 'jam_isi')
+    jumlah_isi = HopperFillData.objects.values_list('jumlah_isi', flat=True).order_by('tanggal', 'jam_isi')
+    jam_isi = HopperFillData.objects.values_list('jam_isi', flat=True).order_by('tanggal', 'jam_isi')
+    shift = HopperFillData.objects.values_list('shift', flat=True).order_by('tanggal', 'jam_isi')
+    pic = HopperFillData.objects.values_list('pic', flat=True).order_by('tanggal', 'jam_isi')
 
+    date_start_index = None
+    date_end_index = None
+
+    date_range = dates_between(request_date_start.date(), request_date_end.date())
+    for date in date_range:
+        if date in tanggal:
+            date_start_index = recursive_date_start(request_date_start.date(), tanggal)
+            date_end_index = recursive_date_end(request_date_end.date(), tanggal)
+        else:
+            print('0 entry untuk data dari tanggal '+str(request_date_start.date())+' hingga tanggal '+str(request_date_end.date()))
+            break
     
+    if date_start_index and date_end_index:
+        no_mesin = no_mesin[date_start_index:date_end_index]
+        part_id = part_id[date_start_index:date_end_index]
+        part_name = part_name[date_start_index:date_end_index]
+        material = material[date_start_index:date_end_index]
+        no_lot = no_lot[date_start_index:date_end_index]
+        temp = temp[date_start_index:date_end_index]
+        tanggal = tanggal[date_start_index:date_end_index]
+        jumlah_isi = jumlah_isi[date_start_index:date_end_index]
+        jam_isi = jam_isi[date_start_index:date_end_index]
+        shift = shift[date_start_index:date_end_index]
+        pic = pic[date_start_index:date_end_index]
 
-    data_row = len(no_mesin)
-    if data_row > 10000:
-        no_mesin = no_mesin[0:10000]
-        part_id = part_id[0:10000]
-        part_name = part_name[0:10000]
-        material = material[0:10000]
-        no_lot = no_lot[0:10000]
-        temp = temp[0:10000]
-        tanggal = tanggal[0:10000]
-        jumlah_isi = jumlah_isi[0:10000]
-        jam_isi = jam_isi[0:10000]
-        shift = shift[0:10000]
-        pic = pic[0:10000]
 
-    
+        r = 1
+        c = 0
+        for d in no_mesin:
+            ws.write_string(r, c, d)
+            r+=1
+        r = 1
+        for d in part_id:
+            ws.write_string(r, c+1, d)
+            r+=1
+        r = 1
+        for d in part_name:
+            ws.write_string(r, c+2, d)
+            r+=1
+        r = 1
+        for d in material:
+            ws.write_string(r, c+3, d)
+            r+=1
+        r = 1
+        for d in no_lot:
+            ws.write_string(r, c+4, str(d))
+            r+=1
+        r = 1
+        for d in temp:
+            ws.write_number(r, c+5, d)
+            r+=1
+        r = 1
+        for d in tanggal:
+            ws.write_datetime(r, c+6, d, date_format)
+            r+=1
+        r = 1
+        for d in jumlah_isi:
+            ws.write_number(r, c+7, d)
+            r+=1
+        r = 1
+        for d in jam_isi:
+            ws.write_datetime(r, c+8, d, time_format)
+            r+=1
+        r = 1
+        for d in shift:
+            ws.write_string(r, c+9, d)
+            r+=1
+        r = 1
+        for d in pic:
+            ws.write_string(r, c+10, d)
+            r+=1
 
-    r = 1
-    c = 0
-    for d in no_mesin:
-        ws.write_string(r, c, d)
-        r+=1
-    r = 1
-    for d in part_id:
-        ws.write_string(r, c+1, d)
-        r+=1
-    r = 1
-    for d in part_name:
-        ws.write_string(r, c+2, d)
-        r+=1
-    r = 1
-    for d in material:
-        ws.write_string(r, c+3, d)
-        r+=1
-    r = 1
-    for d in no_lot:
-        ws.write_string(r, c+4, str(d))
-        r+=1
-    r = 1
-    for d in temp:
-        ws.write_number(r, c+5, d)
-        r+=1
-    r = 1
-    for d in tanggal:
-        ws.write_datetime(r, c+6, d, date_format)
-        r+=1
-    r = 1
-    for d in jumlah_isi:
-        ws.write_number(r, c+7, d)
-        r+=1
-    r = 1
-    for d in jam_isi:
-        ws.write_datetime(r, c+8, d, time_format)
-        r+=1
-    r = 1
-    for d in shift:
-        ws.write_string(r, c+9, d)
-        r+=1
-    r = 1
-    for d in pic:
-        ws.write_string(r, c+10, d)
-        r+=1
+        wb.close()
 
-    wb.close()
+        output.seek(0)
 
-    output.seek(0)
+        response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename = Hopper Fill Data ' + str(request_date_start.strftime('%d-%m-%Y')) + '_-_' +  str(request_date_end.strftime('%d-%m-%Y')) + '.xlsx'
 
-    response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename = Hopper Fill Data ' + str(datetime.now().strftime('%d-%m-%Y')) + '.xlsx'
+        
+    else:
+        wb.close()
+        output.seek(0)
+
+        url = reverse_lazy('hopper_fill_data')
+        warning = '0 Entry with date between ' + str(request_date_start.date()) + ' and ' + str(request_date_end.date())
+
+        response = HttpResponse("<script> alert( '%s' ); window.location='%s' </script>" %(warning, url))
 
     return response
+
+    
 
 def get_material_used_per_day(no_mesin, part_id, part_name, material, no_lot, temp, tanggal, jumlah_isi, jam_isi, shift, pic):
     no_mesin = no_mesin.order_by('-tanggal')
@@ -345,6 +402,8 @@ def export_material_usage(request):
             request_date = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
     else:
         pass
+
+    print(request_date)
 
     output = io.BytesIO()
     
