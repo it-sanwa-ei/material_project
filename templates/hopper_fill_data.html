@@ -4,44 +4,45 @@
 {% block content %} 
 
 <div>
-  <form method="post" action="{% url 'export_hopper_xlsx' %}">
-    {% csrf_token %}
-    <div class="form-group row" style="padding-bottom: 1em;">
-      <div class="form-group col-md-3">
-        <label for="request_date_start">From</label>
-        <input type="date" name="request_date_start" id="request_date_start" class="form-control" placeholder="From (dd/mm/yyyy)">
+    <form method="post" action="{% url 'export_hopper_xlsx' %}">
+      {% csrf_token %}
+      <div class="form-group row" style="padding-bottom: 1em;">
+        <div class="form-group col-md-3">
+          <label for="request_date_start">From</label>
+          <input type="date" name="request_date_start" id="request_date_start" class="form-control" placeholder="From (dd/mm/yyyy)">
+        </div>
+        <div class="form-group col-md-3">
+          <label for="request_date_end">To</label>
+          <input type="date" name="request_date_end" id="request_date_end" class="form-control" placeholder="To (dd/mm/yyyy)">
+        </div>
+        <div class="form-group col-md-3">
+          <label></label>
+          <input type="submit" value="Export Excel" class="btn btn-success form-control">
+        </div>
       </div>
-      <div class="form-group col-md-3">
-        <label for="request_date_end">To</label>
-        <input type="date" name="request_date_end" id="request_date_end" class="form-control" placeholder="To (dd/mm/yyyy)">
-      </div>
-      <div class="form-group col-md-3">
-        <label></label>
-        <input type="submit" value="Export Excel" class="btn btn-success form-control">
-      </div>
-    </div>
-  </form>
+    </form>
 </div>
 
 <div>
-  <form method="post" action="{% url 'export_material_usage' %}">
-    <div class="form-group row" style="padding-bottom: 1em;">
-      {% csrf_token %}
-      <div class="form-group col-md-3">
-        <label for="request_date">Select Date</label>
-        <input type="date" name="request_date" id="request_date" class="form-control">
-      </div>
-      <div class="form-group col-md-3">
-        <label></label>
-        <input type="submit" value="Export Material Usage Report" class="btn btn-primary form-control">
-      </div>
-    </div>  
-  </form>
+    <form method="post" action="{% url 'export_material_usage' %}">
+      <div class="form-group row" style="padding-bottom: 1em;">
+        {% csrf_token %}
+        <div class="form-group col-md-3">
+          <label for="request_date">Select Date</label>
+          <input type="date" name="request_date" id="request_date" class="form-control">
+        </div>
+        <div class="form-group col-md-3">
+          <label></label>
+          <input type="submit" value="Export Material Usage Report" class="btn btn-primary form-control">
+        </div>
+      </div>  
+    </form>
 </div>
 
 <div style="text-align: right; padding-bottom: 1em;">
-<button class="btn btn-white" style="border: 1px solid black;"><a href="{% url 'hopper_fill'%}" style="text-decoration: none;">Add New Hopper Fill Data</a></button>
+  <button class="btn btn-white" style="border: 1px solid black;"><a href="{% url 'hopper_fill'%}" style="text-decoration: none;">Add New Hopper Fill Data</a></button>
 </div>
+
 
 <div>
     <table style="border: 1px solid white;">
@@ -111,7 +112,8 @@
       {% endif %}
     </ul>
     {% endif %}
-  </nav>
+</nav>
+
 
 
 

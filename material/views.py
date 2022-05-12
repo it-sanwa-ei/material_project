@@ -1,3 +1,4 @@
+from email import message
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
@@ -9,18 +10,17 @@ from django.contrib import messages
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.core import signing
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import HttpResponse, Http404, HttpResponseRedirect, JsonResponse
 from django.core.signing import BadSignature
 from django.core.cache import cache
+
+from datetime import datetime, date, time, timedelta
 
 from tablib import Dataset
 import csv
 import xlwt
 import xlsxwriter
 import io
-
-from datetime import datetime, date, time, timedelta
-import pytz
 
 # Create your views here.
 from .models import Product, HopperFillData
@@ -64,6 +64,8 @@ class ProductDeleteView(DeleteView):
     template_name = 'product_delete.html'
     success_url = reverse_lazy('product')
 
+from datetime import datetime, date, time
+import pytz
 
 tz = pytz.timezone('Asia/Jakarta')
 date_format = '%d/%m/%Y'
@@ -165,7 +167,6 @@ class ImportProduct(View):
                 self.resource.import_data(dataset=self.dataset, dry_run=False)
 
         return render(request=self.request, template_name=self.template)
-
 
 def recursive_date_start(ds, tgl_list):
     if ds not in tgl_list:
@@ -315,7 +316,8 @@ def export_hopper_xlsx(request):
 
         response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename = Hopper Fill Data ' + str(request_date_start.strftime('%d-%m-%Y')) + '_-_' +  str(request_date_end.strftime('%d-%m-%Y')) + '.xlsx'
-    
+
+        
     else:
         wb.close()
         output.seek(0)
