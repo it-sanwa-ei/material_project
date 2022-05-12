@@ -249,7 +249,7 @@ def export_hopper_xlsx(request):
             print('0 entry untuk data dari tanggal '+str(request_date_start.date())+' hingga tanggal '+str(request_date_end.date()))
             break
     
-    if date_start_index and date_end_index:
+    if date_range:
         no_mesin = no_mesin[date_start_index:date_end_index]
         part_id = part_id[date_start_index:date_end_index]
         part_name = part_name[date_start_index:date_end_index]
@@ -315,8 +315,7 @@ def export_hopper_xlsx(request):
 
         response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename = Hopper Fill Data ' + str(request_date_start.strftime('%d-%m-%Y')) + '_-_' +  str(request_date_end.strftime('%d-%m-%Y')) + '.xlsx'
-
-        
+    
     else:
         wb.close()
         output.seek(0)
