@@ -168,43 +168,23 @@ class ImportProduct(View):
 
         return render(request=self.request, template_name=self.template)
 
-def recursive_date_start(ds, tgl_list):
-    if ds not in tgl_list:
-        ds += timedelta(days=1)
-        recursive_date_start(ds, tgl_list)
-    else:
-        ds_index = list(tgl_list).index(ds)
-        return ds_index
-
-def recursive_date_end(de, tgl_list):
-    if de not in tgl_list:
-        de -= timedelta(days=1)
-        recursive_date_end(de, tgl_list)
-    else:
-        de_index = len(list(tgl_list)) - (list(tgl_list)[::-1].index(de))
-        return de_index
-
-def dates_between(sd, ed):
-    delta = ed - sd
-    days = []
-    for i in range(delta.days + 1):
-        days.append(sd + timedelta(days=i))
-    return days
 
 def export_hopper_xlsx(request):
     if request.method == 'POST':
-        if request.POST.get('request_date_start') and request.POST.get('request_date_end'):
-            print(request.POST.get('request_date_start'))
-            print(request.POST.get('request_date_end'))
+        if request.POST.get('request_date_start'):
             request_date_start = request.POST.get('request_date_start')
-            request_date_end = request.POST.get('request_date_end')
             request_date_start = datetime.strptime(request_date_start, '%Y-%m-%d')
-            request_date_end = datetime.strptime(request_date_end, '%Y-%m-%d')
         else:
             request_date_start = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+
+        if request.POST.get('request_date_end'):
+            request_date_end = request.POST.get('request_date_end')
+            request_date_end = datetime.strptime(request_date_end, '%Y-%m-%d')
+        else:
             request_date_end = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
     else:
         pass
+
 
     output = io.BytesIO()
     
@@ -226,43 +206,20 @@ def export_hopper_xlsx(request):
         ws.write(row_num, col_num, columns[col_num], bold)
 
     
-    no_mesin = HopperFillData.objects.values_list('no_mesin', flat=True).order_by('tanggal', 'jam_isi')
-    part_id = HopperFillData.objects.values_list('product__part_id', flat=True).order_by('tanggal', 'jam_isi')
-    part_name = HopperFillData.objects.values_list('product__part_name', flat=True).order_by('tanggal', 'jam_isi')
-    material = HopperFillData.objects.values_list('product__material', flat=True).order_by('tanggal', 'jam_isi')
-    no_lot = HopperFillData.objects.values_list('no_lot', flat=True).order_by('tanggal', 'jam_isi')
-    temp = HopperFillData.objects.values_list('temp', flat=True).order_by('tanggal', 'jam_isi')
-    tanggal = HopperFillData.objects.values_list('tanggal', flat=True).order_by('tanggal', 'jam_isi')
-    jumlah_isi = HopperFillData.objects.values_list('jumlah_isi', flat=True).order_by('tanggal', 'jam_isi')
-    jam_isi = HopperFillData.objects.values_list('jam_isi', flat=True).order_by('tanggal', 'jam_isi')
-    shift = HopperFillData.objects.values_list('shift', flat=True).order_by('tanggal', 'jam_isi')
-    pic = HopperFillData.objects.values_list('pic', flat=True).order_by('tanggal', 'jam_isi')
+    filtered_query = HopperFillData.objects.filter(tanggal__gte=request_date_start.date(), tanggal__lte=request_date_end.date())
 
-    date_start_index = None
-    date_end_index = None
-
-    date_range = dates_between(request_date_start.date(), request_date_end.date())
-    for date in date_range:
-        if date in tanggal:
-            date_start_index = recursive_date_start(request_date_start.date(), tanggal)
-            date_end_index = recursive_date_end(request_date_end.date(), tanggal)
-        else:
-            print('0 entry untuk data dari tanggal '+str(request_date_start.date())+' hingga tanggal '+str(request_date_end.date()))
-            break
-    
-    if date_range:
-        no_mesin = no_mesin[date_start_index:date_end_index]
-        part_id = part_id[date_start_index:date_end_index]
-        part_name = part_name[date_start_index:date_end_index]
-        material = material[date_start_index:date_end_index]
-        no_lot = no_lot[date_start_index:date_end_index]
-        temp = temp[date_start_index:date_end_index]
-        tanggal = tanggal[date_start_index:date_end_index]
-        jumlah_isi = jumlah_isi[date_start_index:date_end_index]
-        jam_isi = jam_isi[date_start_index:date_end_index]
-        shift = shift[date_start_index:date_end_index]
-        pic = pic[date_start_index:date_end_index]
-
+    if filtered_query:
+        no_mesin = filtered_query.values_list('no_mesin', flat=True).order_by('tanggal', 'jam_isi')
+        part_id = filtered_query.values_list('product__part_id', flat=True).order_by('tanggal', 'jam_isi')
+        part_name = filtered_query.values_list('product__part_name', flat=True).order_by('tanggal', 'jam_isi')
+        material = filtered_query.values_list('product__material', flat=True).order_by('tanggal', 'jam_isi')
+        no_lot = filtered_query.values_list('no_lot', flat=True).order_by('tanggal', 'jam_isi')
+        temp = filtered_query.values_list('temp', flat=True).order_by('tanggal', 'jam_isi')
+        tanggal = filtered_query.values_list('tanggal', flat=True).order_by('tanggal', 'jam_isi')
+        jumlah_isi = filtered_query.values_list('jumlah_isi', flat=True).order_by('tanggal', 'jam_isi')
+        jam_isi = filtered_query.values_list('jam_isi', flat=True).order_by('tanggal', 'jam_isi')
+        shift = filtered_query.values_list('shift', flat=True).order_by('tanggal', 'jam_isi')
+        pic = filtered_query.values_list('pic', flat=True).order_by('tanggal', 'jam_isi')
 
         r = 1
         c = 0
@@ -328,7 +285,6 @@ def export_hopper_xlsx(request):
         response = HttpResponse("<script> alert( '%s' ); window.location='%s' </script>" %(warning, url))
 
     return response
-
     
 
 def get_material_used_per_day(no_mesin, part_id, part_name, material, no_lot, temp, tanggal, jumlah_isi, jam_isi, shift, pic):
@@ -501,3 +457,4 @@ def export_material_usage(request):
     response['Content-Disposition'] = 'attachment; filename = Material Usage Report ' + str(request_date.strftime('%d-%m-%Y')) + '.xlsx'
 
     return response
+    
