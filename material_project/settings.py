@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
+#import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'r=AJ#pEidRKoW1y4Q?ju}$N(PD(~iuaFfzQQ$#~XCo^<$"rstB7}p]zKGH)_g4]'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['sanwa-ei-production-hopper.herokuapp.com', '127.0.0.1', '10.0.1.66', 'localhost']
+ALLOWED_HOSTS = ['sanwa-ei-production-hopper.herokuapp.com', '119.110.67.18', '127.0.0.1', '10.0.1.66', 'localhost']
 
 
 # Application definition
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'whitenoise.runserver_nostatic',
+    #'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 
     #3rd_party
@@ -66,7 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    #'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'material_project.urls'
@@ -95,11 +95,11 @@ WSGI_APPLICATION = 'material_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'material_hopper_db',
+        'USER': 'sanwa_host',
         'PASSWORD': 'asd123asd',
-        'HOST' : 'db',
+        'HOST' : 'localhost',
         'PORT' : 5432,
     }
 }
@@ -162,6 +162,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_PASSWORD = 'ASD123asd!@#'
 
+'''
 ENVIRONMENT = os.environ.get('ENVIRONMENT', default = 'development')
 
 if ENVIRONMENT == 'production':
@@ -178,7 +179,7 @@ if ENVIRONMENT == 'production':
 
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
-
+'''
 
 """"
 CACHES = {
