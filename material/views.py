@@ -26,6 +26,7 @@ import io
 from .models import Product, HopperFillData
 from .forms import HopperFillForm
 from .resources import ProductResources, HopperFillDataResources
+from account.models import UserAction
 from material_project import settings
 
 class HomeView(TemplateView):
@@ -109,6 +110,13 @@ class HopperFillView(LoginRequiredMixin, CreateView):
         form.instance.pic = self.request.user
         form.save()
         return temp
+        
+    def dispatch(self, request, *args, **kwargs):
+        if request.method == "POST":
+            UserAction.objects.create(sender=request.user, verb = "Input Hopper Data | " + str(self.request.POST.get('no_mesin')) + ' | ' + str(Product.objects.filter(pk = self.request.POST.get('product')).first()) + ' | ' + str(datetime.now().strftime("%d-%m-%Y, %H:%M:%S")))
+            return super(HopperFillView, self).dispatch(request, *args, **kwargs)
+        else:
+            return super(HopperFillView, self).dispatch(request, *args, **kwargs)
 
 class HopperDataListView(ListView):
     model = HopperFillData
@@ -121,12 +129,28 @@ class HopperDataUpdateView(UpdateView):
     model = HopperFillData
     template_name = 'hopper_fill_edit.html'
     fields = ('no_mesin','product','no_lot','temp','tanggal','jumlah_isi','jam_isi')
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.method == "POST":
+            UserAction.objects.create(sender=request.user, verb = "Edit Hopper Data | " + str(self.request.POST.get('no_mesin')) + ' | ' + str(Product.objects.filter(pk = self.request.POST.get('product')).first()) + ' | ' + str(datetime.now().strftime("%d-%m-%Y, %H:%M:%S")))
+            return super(HopperDataUpdateView, self).dispatch(request, *args, **kwargs)
+        else:
+            return super(HopperDataUpdateView, self).dispatch(request, *args, **kwargs)
+
 
 class HopperDataDeleteView(DeleteView):
     model = HopperFillData
     template_name = 'hopper_fill_delete.html'
     context_object_name = 'hopper_delete'
     success_url = reverse_lazy('hopper_fill_data')
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.method == "POST":
+            UserAction.objects.create(sender=request.user, verb = "Delete Hopper Data | " + str(self.request.POST.get('no_mesin')) + ' | ' + str(Product.objects.filter(pk = self.request.POST.get('product')).first()) + ' | ' + str(datetime.now().strftime("%d-%m-%Y, %H:%M:%S")))
+            return super(HopperDataDeleteView, self).dispatch(request, *args, **kwargs)
+        else:
+            return super(HopperDataDeleteView, self).dispatch(request, *args, **kwargs)
+    
 
 class ExportProduct(View):
     def __init__(self, request):
@@ -270,6 +294,8 @@ def export_hopper_xlsx(request):
         wb.close()
 
         output.seek(0)
+        
+        UserAction.objects.create(sender=request.user, verb = "Export Excel " + str(datetime.now().strftime("%d-%m-%Y,%H:%M:%S")))
 
         response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename = Hopper Fill Data ' + str(request_date_start.strftime('%d-%m-%Y')) + '_-_' +  str(request_date_end.strftime('%d-%m-%Y')) + '.xlsx'
@@ -452,6 +478,8 @@ def export_material_usage(request):
     wb.close()
 
     output.seek(0)
+    
+    UserAction.objects.create(sender=request.user, verb = "Export Report " + str(datetime.now().strftime("%d-%m-%Y,%H:%M:%S")))
 
     response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename = Material Usage Report ' + str(request_date.strftime('%d-%m-%Y')) + '.xlsx'

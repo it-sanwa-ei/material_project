@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'r=AJ#pEidRKoW1y4Q?ju}$N(PD(~iuaFfzQQ$#~XCo^<$"rstB7}p]zKGH)_g4]'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['sanwa-ei-production-hopper.herokuapp.com', '119.110.67.18', '127.0.0.1', '10.0.1.66', 'localhost']
+ALLOWED_HOSTS = ['sanwa-ei-production-hopper.herokuapp.com', '119.110.67.20', '127.0.0.1', '10.0.1.114' , 'localhost']
 
 
 # Application definition
@@ -99,7 +99,7 @@ DATABASES = {
         'NAME': 'material_hopper_db',
         'USER': 'sanwa_host',
         'PASSWORD': 'asd123asd',
-        'HOST' : 'localhost',
+        'HOST' : '127.0.0.1',
         'PORT' : 5432,
     }
 }

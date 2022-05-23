@@ -5,16 +5,19 @@
     {% block title %} Hopper Fill Form {% endblock title %}
 
 
-<body>
-    {% block content %} 
 
+
+    {% block content %} 
+<div>
     <form method="post" action="" enctype="multipart/form-data">
         {% csrf_token %}
         {{form|crispy}}
         <input type="submit" value="Submit" class="btn btn-primary"/>
     </form>
+</div>
 
-
+<div>
+	<br>
+</div>
     {% endblock content %}
 
-</body>

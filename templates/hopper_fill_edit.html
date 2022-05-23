@@ -3,12 +3,16 @@
 
 {% block title %} Edit Hopper Input {% endblock title %}
 
-{% block content %} 
+{% block content %}
+<div>
 <h3>Edit Hopper Input</h3>
 <br>
 <form action="" method="post">{% csrf_token %}
     {{form|crispy}}
     <input type="submit" value="Save" class="btn btn-primary"/>
 </form>
-
+</div>
+<div>
+<br>
+</div>
 {% endblock content %}
