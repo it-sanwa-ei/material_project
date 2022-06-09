@@ -72,6 +72,7 @@
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Jam Isi</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Pemakaian Virgin (kg)</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Pemakaian Regrind (kg)</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Total Pemakaian (kg)</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Shift</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">PIC</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;" colspan="2"></th>
@@ -89,6 +90,7 @@
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.jam_isi|time:"H:i"}}</td>
             <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pemakaian_virgin}}</td>
             <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pemakaian_regrind}}</td>
+            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pemakaian_virgin|add:hopper_fill_data.pemakaian_regrind}}</td>
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.shift}}</td>
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pic}}</td>
             <td style="width: 15em; border: 1px solid white; border-right: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_edit' hopper_fill_data.pk %}"><i class="fa-solid fa-pen"></i></a></td>
@@ -98,39 +100,42 @@
     </table>
 </div>
 
-<nav aria-label="Page navigation example" style="padding-top: 3em;">
-    {% if is_paginated %}
-    <ul class="pagination justify-content-center .pagination-sm">
-      {% if page_obj.has_previous %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{page_obj.previous_page_number}}"
-          >&laquo;</a
-        >
-      </li>
-      {% else %}
-      <li class="page-item disabled">
-        <a class="page-link" href="#">&laquo;</a>
-      </li>
-      {% endif %} {% for i in paginator.page_range %} {% if page_obj.number == i %}
-      <li class="page-item"><a class="page-link active bg-primary bg-opacity-25">{{ i }}</a></li>
-      {% else %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-      </li>
-      {% endif %} {% endfor %} {% if page_obj.has_next %}
-      <li class="page-item">
-        <a href="?page={{page_obj.next_page_number}}" class="page-link">&raquo;</a>
-      </li>
-      {% else %}
-      <li class="page-item disabled">
-        <a class="page-link">&raquo;</a>
-      </li>
-      {% endif %}
-    </ul>
-    {% endif %}
-</nav>
-
-
-
-
 {% endblock content %}
+
+{% block footer %}
+
+  {% if is_paginated %}
+    <ul class="pagination align-items-center justify-content-center text-center">
+
+    {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="fa fa-chevron-left" aria-hidden="true"></i></a></li>
+    {% else %}
+        <li class="page-item disabled"><span class="page-link"><i class="fa fa-chevron-left" aria-hidden="true" aria-disabled="true"></i></span></li>
+    {% endif %}
+    
+    {% if page_obj.number|add:'-4' > 1 %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.number|add:'-5' }}">&hellip;</a></li>
+    {% endif %}
+    
+    {% for i in page_obj.paginator.page_range %}
+        {% if page_obj.number == i %}
+            <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
+        {% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
+            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+        {% endif %}
+    {% endfor %}
+    
+    {% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.number|add:'5' }}">&hellip;</a></li>
+    {% endif %}
+    
+    {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i class="fa fa-chevron-right" aria-hidden="true"></i></a></li>
+    {% else %}
+        <li class="page-item disabled"><span><i class="fa fa-chevron-right" aria-hidden="true" aria-disabled="true"></i></span></li>
+    {% endif %}
+    
+    </ul>
+  {% endif %}
+
+{% endblock footer %}
