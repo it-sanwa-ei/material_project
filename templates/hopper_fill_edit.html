@@ -1,18 +1,19 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %} Edit Hopper Input {% endblock title %}
-
+{% block title %} Edit Material Hopper Data {% endblock title %}
+{% block header %} Edit Material Hopper Data {% endblock header %}
 {% block content %}
-<div>
-<h3>Edit Hopper Input</h3>
-<br>
-<form action="" method="post">{% csrf_token %}
-    {{form|crispy}}
-    <input type="submit" value="Save" class="btn btn-primary"/>
-</form>
-</div>
-<div>
-<br>
-</div>
-{% endblock content %}
+    <style>
+        form label{
+            display: block;
+        }
+    </style>
+    
+
+    <div>
+        {% csrf_token %} 
+        {% crispy form %}
+    </div>
+    
+    {% endblock content %}

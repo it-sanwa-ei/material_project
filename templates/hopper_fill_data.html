@@ -1,8 +1,10 @@
 {% extends 'base.html' %} 
 {% load admin_urls %}
 
-{% block content %} 
+{% block title %} Material Hopper List {% endblock title %} 
+{% block header %} Material Hopper List {% endblock header %}
 
+{% block note %}
 <div>
     <form method="post" action="{% url 'export_hopper_xlsx' %}">
       {% csrf_token %}
@@ -38,16 +40,28 @@
       </div>  
     </form>
 </div>
+{% endblock note %}
 
-<div style="text-align: right; padding-bottom: 1em;">
-  <button class="btn btn-white" style="border: 1px solid black;"><a href="{% url 'hopper_fill'%}" style="text-decoration: none;">Add New Hopper Fill Data</a></button>
+{% block content %} 
+<div class="mt-2 mb-2">
+  <div class="row">
+      <div class="form-group name1 col-md-6 text-start">
+          <form class="form-inline mt-2 mt-md-0" action="{% url 'hopper_fill_data' %}" method="get">
+              <input name="qu" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search Hopper Fill Data">
+          </form>
+      </div>
+      <div class="form-group name2 col-md-6 text-end">
+          <button class="btn btn-white" style="border: 1px solid rgb(11, 94, 215);"><a href="{% url 'hopper_fill'%}" style= "text-decoration: none;">Add New Hopper Fill Data</a></button>
+      </div>
+  </div>
 </div>
+
 
 
 <div>
     <table style="border: 1px solid white;">
         <tr style="border: 1px solid white;">
-            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">No</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">#</th>
 		        <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">No Mesin</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Product ID</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Product Name</th>
@@ -55,15 +69,16 @@
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">No Lot</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Temp (°C)</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Tanggal</th>
-            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Jumlah Isi (kg)</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Jam Isi</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Pemakaian Virgin (kg)</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Pemakaian Regrind (kg)</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Shift</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">PIC</th>
             <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;" colspan="2"></th>
         </tr>
         {% for hopper_fill_data in hopper_fill_data_list %} 
         <tr style="border: 1px solid white;">
-            <td style="width: 5em; border: 1px solid white; background-color: lightblue; text-align: center;">{{forloop.counter}}</td>
+            <td style="width: 5em; border: 1px solid white; background-color: lightblue; text-align: center;">{{ page_obj.start_index|add:forloop.counter0 }}</td>
 		        <td style="width: 20em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.no_mesin}}</td>
             <td style="width: 75em; border: 1px solid white; background-color: lightblue; text-align: center;"><a href="{% url 'product_detail' hopper_fill_data.product.pk %}">{{hopper_fill_data.product.part_id}}</a></td>
             <td style="width: 200em; border: 1px solid white; background-color: lightblue; font-size: small;">{{hopper_fill_data.product.part_name}}</td>
@@ -71,8 +86,9 @@
             <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.no_lot}}</td>
             <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.temp}}</td>
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center; font-size: small;">{{hopper_fill_data.tanggal|date:"d-M-Y"}}</td>
-            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.jumlah_isi}}</td>
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.jam_isi|time:"H:i"}}</td>
+            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pemakaian_virgin}}</td>
+            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pemakaian_regrind}}</td>
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.shift}}</td>
             <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pic}}</td>
             <td style="width: 15em; border: 1px solid white; border-right: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_edit' hopper_fill_data.pk %}"><i class="fa-solid fa-pen"></i></a></td>

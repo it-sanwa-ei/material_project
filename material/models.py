@@ -51,21 +51,41 @@ class Product(models.Model):
 
 
 class HopperFillData(models.Model):
-    no_mesin = models.CharField('No Mesin', max_length=3, choices=mesin_choice, default=mesin_choice[0])
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Product', default=None)
+    no_mesin = models.CharField('No Mesin', max_length=3, choices=mesin_choice)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Product')
     no_lot = models.IntegerField('No Lot', blank=True, null=True)
     temp = models.IntegerField('Temperature', blank=False, null=False)
     tanggal = models.DateField('Tanggal', blank=False, null=False)
-    jumlah_isi = models.IntegerField('Jumlah Isi', blank=False, null=False)
     jam_isi = models.TimeField('Jam Isi', blank=False, null=False)
+    co_virgin = models.PositiveIntegerField('CO Virgin', blank=False, null=False, default=0)
+    co_regrind = models.PositiveIntegerField('CO Regrind', blank=False, null=False, default=0)
+    pemakaian_virgin = models.PositiveIntegerField('Usage Virgin', blank=False, null=False, default=0)
+    pemakaian_regrind = models.PositiveIntegerField('Usage Regrind', blank=False, null=False, default=0)
+    kebutuhan_material = models.IntegerField('Kebutuhan Material', blank=True, null=True)
     pic = models.ForeignKey(UserModel, on_delete=models.CASCADE, verbose_name='PIC', to_field='username', blank=True, null=True)
-    shift = models.CharField('Shift', max_length=7)
-
+    shift = models.CharField('Shift', max_length=7, blank=True, null=True)
+    
     def __str__(self):
-        return self.no_mesin
+        hop = '{0.no_mesin}'
+        return hop.format(self)
     
     def get_absolute_url(self):
         return reverse('hopper_fill_data')
 
+    
 
+class Scrap(models.Model):
+    tanggal = models.DateField('Tanggal', blank=False, null=False)
+    shift = models.CharField('Shift', max_length=7)
+    jumlah_purge = models.DecimalField('Purging', decimal_places=2, max_digits=7)
+    jumlah_ng = models.DecimalField('Part Scrap', decimal_places=2, max_digits=7)
+    jumlah_runner = models.DecimalField('Runner', decimal_places=2, max_digits=7)
+    pic = models.ForeignKey(UserModel, on_delete=models.CASCADE, verbose_name='PIC', to_field='username', blank=True, null=True)
 
+    def __str__(self):
+        scrap = '{0.tanggal} / {0.shift}'
+        return scrap.format(self)
+    
+    def get_absolute_url(self):
+        return reverse('scrap_list')
+    

@@ -1,33 +1,63 @@
 {% extends 'base.html' %} 
 {% load admin_urls %}
 
+{% block title %} Product List {% endblock title %}
+{% block header %} Product List {% endblock header %}
+
+{% block note %}
+<div>
+  Please import Excel file (.xlsx) with new product data following this <a href="https://drive.google.com/uc?export=download&id=1wh3Pg1EJSYvahboGGKTlVcERraqAo8-i">template</a>
+</div>
+<br>
+<div>
+  <form method="post" action="{% url 'import_product_xlsx' %}" enctype="multipart/form-data">
+    <div class="form-group row pb-1">
+      {% csrf_token %}
+      <div class="form-group col-md-9">
+        <label for="import_product_xlsx">New Product Excel</label>
+        <input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" name="import_product_xlsx" id="import_product_xlsx" class="form-control">
+      </div>
+      <div class="form-group col-md-3 text-end">
+        <label></label>
+        <input type="submit" value="Import Product Excel" class="btn btn-success form-control">
+      </div>
+    </div>  
+  </form>
+</div>
+{% endblock note %}
+
 {% block content %} 
 
-<div class="container" style="margin-bottom: 2em;">
+<div class="mb-4">
     <div class="row">
-        <div class="form-group name1 col-md-6">
+        <div class="form-group name1 col-md-10 text-start">
             <form class="form-inline mt-2 mt-md-0" action="{% url 'product' %}" method="get" style="text-align:left; width: 25em;">
                 <input name="q" class="form-control mr-sm-2" type="text" placeholder="Search Product" aria-label="Search Product">
             </form>
         </div>
-        <div class="form-group name2 col-md-6">
-            <p  style="text-align: right;"><a href="{% url 'product_input'%}">Add New Product</a></p>
+        <div class="form-group name2 col-md-2 text-end">
+            <button class="btn btn-primary"><a href="{% url 'product_input'%}" style="color: white; text-decoration: none;">Add New Product</a></button>
         </div>
     </div>
 </div>
 
 <div>
-    <table style="border: 1px solid white;">
+    <table style="border: 1px solid white; width: 100%;">
         <tr style="border: 1px solid white;">
-            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white;">Product ID</th>
-            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white">Product Name</th>
-            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white">Material</th>
+            <th style="width: 3%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">#</th>
+            <th style="width: 20%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white;">Part ID</th>
+            <th style="width: 32%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white">Part Name</th>
+            <th style="width: 35%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white">Material</th>
+            <th style="width: 10%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;" colspan="2"></th>
         </tr>
         {% for product in product_list %} 
         <tr style="border: 1px solid white;">
-            <td style="width: 80em; border: 1px solid white; background-color: lightblue;"><a href="{% url 'product_detail' product.pk %}">{{product.part_id}}</td>
-            <td style="width: 100em; border: 1px solid white; background-color: lightblue;">{{product.part_name}}</td>
-            <td style="width: 150em; border: 1px solid white; background-color: lightblue;">{{product.material}}</td>
+            <td style="width: 3%;  border: 1px solid white; background-color: lightblue; text-align: center;">{{ page_obj.start_index|add:forloop.counter0 }}</td>
+            <td style="width: 20%; border: 1px solid white; background-color: lightblue;"><a href="{% url 'product_detail' product.pk %}">{{product.part_id}}</td>
+            <td style="width: 32%; border: 1px solid white; background-color: lightblue;">{{product.part_name}}</td>
+            <td style="width: 35%; border: 1px solid white; background-color: lightblue;">{{product.material}}</td>
+            <td style="width: 5%;  border: 1px solid white; border-right: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'product_edit' product.pk %}"><i class="fa-solid fa-pen"></i></a></td>
+            <td style="width: 5%;  border: 1px solid white; border-left: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'product_delete' product.pk %}"><i class="fa-solid fa-trash-can"></i></a></td>
         </tr>
         {% endfor %}
     </table>

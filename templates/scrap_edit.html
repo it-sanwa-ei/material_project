@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %} Product Form {% endblock title %}
+{% block title %} Edit Scrap {% endblock title %}
 
-{% block header %} Product Form {% endblock header %}
+{% block header %} Edit Scrap {% endblock header %}
 {% block content %} 
 <div class="container">
     {% csrf_token %}
     {% crispy form %}
 </div>
-<br>
 {% endblock content %}

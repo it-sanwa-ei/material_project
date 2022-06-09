@@ -1,6 +1,5 @@
-from email import message
-from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.views.generic.list import BaseListView
@@ -9,25 +8,31 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db.models import Q
 from django.core.paginator import Paginator
-from django.core import signing
-from django.http import HttpResponse, Http404, HttpResponseRedirect, JsonResponse
+from django.core import signing, serializers
+from django.http import HttpRequest, HttpResponse, Http404, HttpResponseRedirect, JsonResponse
 from django.core.signing import BadSignature
 from django.core.cache import cache
+from django.contrib.postgres.search import SearchVector
+from django.db.models import Sum
+from django.core.files.storage import FileSystemStorage
+from django import template, forms
+from django.conf import settings
+
+import decimal
 
 from datetime import datetime, date, time, timedelta
 
 from tablib import Dataset
-import csv
-import xlwt
 import xlsxwriter
+import openpyxl
 import io
 
+# Custom django filter
+register = template.Library()
+
 # Create your views here.
-from .models import Product, HopperFillData
-from .forms import HopperFillForm
-from .resources import ProductResources, HopperFillDataResources
-from account.models import UserAction
-from material_project import settings
+from .models import Product, HopperFillData, Scrap
+from .forms import ProductForm, HopperForm, ScrapForm
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -50,19 +55,19 @@ class ProductDetailView(DetailView):
     model = Product
     template_name = 'product_detail.html'
 
-class ProductCreateView(CreateView):
-    model = Product
+class ProductCreateView(LoginRequiredMixin, CreateView):
+    form_class = ProductForm
     template_name = 'product_input.html'
-    fields = '__all__'
 
 class ProductUpdateView(UpdateView):
     model = Product
+    form_class = ProductForm
     template_name = 'product_edit.html'
-    fields = '__all__'
 
 class ProductDeleteView(DeleteView):
     model = Product
     template_name = 'product_delete.html'
+    context_object_name = 'product_delete'
     success_url = reverse_lazy('product')
 
 from datetime import datetime, date, time
@@ -79,12 +84,18 @@ shift3_s = time(0, 0, 0)
 shift3_e = time(7, 59, 59)
 shift_choice = ['Shift 1', 'Shift 2', 'Shift 3']
 
-class HopperFillView(LoginRequiredMixin, CreateView):
-    form_class = HopperFillForm
-    model = HopperFillData
+def get_shift(jam_isi):
+    if (jam_isi >= shift1_s) and (jam_isi <= shift1_e):
+        shift = shift_choice[0]
+    elif (jam_isi >= shift2_s) and (jam_isi <= shift2_e):
+        shift = shift_choice[1]
+    elif (jam_isi >= shift3_s) and (jam_isi <= shift3_e):
+        shift = shift_choice[2]
+    return shift
+
+class HopperCreateView(LoginRequiredMixin, CreateView):
+    form_class = HopperForm
     template_name = 'hopper_fill.html'
-    success_url = "/"
-    paginate_by = 50
 
     def form_valid(self, form):
         no_mesin = form.cleaned_data['no_mesin']
@@ -92,106 +103,144 @@ class HopperFillView(LoginRequiredMixin, CreateView):
         no_lot = form.cleaned_data['no_lot']
         temp = form.cleaned_data['temp']
         tanggal = form.cleaned_data['tanggal']
-        jumlah_isi = form.cleaned_data['jumlah_isi']
         jam_isi = form.cleaned_data['jam_isi']
+        co_virgin = form.cleaned_data['co_virgin']
+        co_regrind = form.cleaned_data['co_regrind']
+        pemakaian_virgin = form.cleaned_data['pemakaian_virgin']
+        pemakaian_regrind = form.cleaned_data['pemakaian_regrind']
+        pic = form.cleaned_data['pic']
+        shift = form.cleaned_data['shift']
 
-        print(jam_isi)
-
-        if (jam_isi >= shift1_s) and (jam_isi <= shift1_e):
-            shift = shift_choice[0]
-        elif (jam_isi >= shift2_s) and (jam_isi <= shift2_e):
-            shift = shift_choice[1]
-        elif (jam_isi >= shift3_s) and (jam_isi <= shift3_e):
-            shift = shift_choice[2]
-
-        temp = super(HopperFillView, self).form_valid(form = form)
-        print(shift)
-        form.instance.shift = shift
+        form.instance.shift = get_shift(jam_isi)
         form.instance.pic = self.request.user
         form.save()
-        return temp
-        
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == "POST":
-            UserAction.objects.create(sender=request.user, verb = "Input Hopper Data | " + str(self.request.POST.get('no_mesin')) + ' | ' + str(Product.objects.filter(pk = self.request.POST.get('product')).first()) + ' | ' + str(datetime.now().strftime("%d-%m-%Y, %H:%M:%S")))
-            return super(HopperFillView, self).dispatch(request, *args, **kwargs)
-        else:
-            return super(HopperFillView, self).dispatch(request, *args, **kwargs)
+        return super(HopperCreateView, self).form_valid(form = form)
 
-class HopperDataListView(ListView):
+def ajax_fill_hopper_form(request):
+    no_mesin = request.GET.get('no_mesin', None)
+    print(no_mesin)
+    if no_mesin:
+        try:
+            query = HopperFillData.objects.filter(no_mesin=no_mesin).values().latest('id')
+            product_id = query['product_id']
+            co_virgin = query['co_virgin']
+            co_regrind = query['co_regrind']
+            pemakaian_virgin = query['pemakaian_virgin']
+            pemakaian_regrind = query['pemakaian_regrind']
+            if query['kebutuhan_material'] > 0:
+                kebutuhan_material = query['kebutuhan_material']
+            else:
+                kebutuhan_material = None
+            temp = query['temp']
+            hopper_dict = {'product_id':product_id, 'temp':temp, 'co_virgin':co_virgin, 'co_regrind':co_regrind, 'pemakaian_virgin':pemakaian_virgin, 'pemakaian_regrind':pemakaian_regrind, 'kebutuhan_material': kebutuhan_material}
+            return JsonResponse(hopper_dict, safe=False)
+        except ValueError:
+            pass
+
+class HopperListView(ListView):
     model = HopperFillData
     template_name = 'hopper_fill_data.html'
     context_object_name = 'hopper_fill_data_list'
     paginate_by = 50
     ordering = ['-id']
 
-class HopperDataUpdateView(UpdateView):
+    def get_queryset(self):
+        #search_vector = SearchVector('no_mesin', 'product__part_id', 'product__part_name', 'product__material')
+        query = self.request.GET.get('qu')
+        print(query)
+        if (query) and (" " not in query):
+            print('query not containing space')
+            return HopperFillData.objects.filter( Q(no_mesin__icontains=query) | Q(product__part_id__icontains=query) | Q(product__part_name__icontains=query) | Q(product__material__icontains=query)).order_by('-id')
+        elif (query) and (" " in query):
+            print('query containing space')
+            return HopperFillData.objects.annotate(search = SearchVector('no_mesin', 'product__part_id', 'product__part_name', 'product__material'),).filter(search=query).order_by('-id')
+        else:
+            return HopperFillData.objects.all().order_by('-id')
+    
+    def index(request):
+        per_page = 50
+        page = int(request.GET.get('page', 1))
+        start_range = (page - 1) * per_page
+        end_range = page * per_page
+        records = HopperFillData.objects.all()[start_range:end_range]
+        return render(request, 'hopper_fill_data.html', {'records':records})
+
+class HopperUpdateView(UpdateView):
+    form_class = HopperForm
     model = HopperFillData
     template_name = 'hopper_fill_edit.html'
-    fields = ('no_mesin','product','no_lot','temp','tanggal','jumlah_isi','jam_isi')
-    
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == "POST":
-            UserAction.objects.create(sender=request.user, verb = "Edit Hopper Data | " + str(self.request.POST.get('no_mesin')) + ' | ' + str(Product.objects.filter(pk = self.request.POST.get('product')).first()) + ' | ' + str(datetime.now().strftime("%d-%m-%Y, %H:%M:%S")))
-            return super(HopperDataUpdateView, self).dispatch(request, *args, **kwargs)
-        else:
-            return super(HopperDataUpdateView, self).dispatch(request, *args, **kwargs)
 
+    def form_valid(self, form):
+        no_mesin = form.cleaned_data['no_mesin']
+        product = form.cleaned_data['product']
+        no_lot = form.cleaned_data['no_lot']
+        temp = form.cleaned_data['temp']
+        tanggal = form.cleaned_data['tanggal']
+        jam_isi = form.cleaned_data['jam_isi']
+        co_virgin = form.cleaned_data['co_virgin']
+        co_regrind = form.cleaned_data['co_regrind']
+        pemakaian_virgin = form.cleaned_data['pemakaian_virgin']
+        pemakaian_regrind = form.cleaned_data['pemakaian_regrind']
+        pic = form.cleaned_data['pic']
+        shift = form.cleaned_data['shift']
 
-class HopperDataDeleteView(DeleteView):
+        form.instance.shift = get_shift(jam_isi)
+        form.instance.pic = self.request.user
+        form.save()
+        return super(HopperUpdateView, self).form_valid(form = form)
+
+class HopperDeleteView(DeleteView):
     model = HopperFillData
     template_name = 'hopper_fill_delete.html'
     context_object_name = 'hopper_delete'
     success_url = reverse_lazy('hopper_fill_data')
+
+class ScrapCreateView(LoginRequiredMixin ,CreateView):
+    form_class = ScrapForm
+    model = Scrap
+    template_name = 'scrap_input.html'
     
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == "POST":
-            UserAction.objects.create(sender=request.user, verb = "Delete Hopper Data | " + str(self.request.POST.get('no_mesin')) + ' | ' + str(Product.objects.filter(pk = self.request.POST.get('product')).first()) + ' | ' + str(datetime.now().strftime("%d-%m-%Y, %H:%M:%S")))
-            return super(HopperDataDeleteView, self).dispatch(request, *args, **kwargs)
-        else:
-            return super(HopperDataDeleteView, self).dispatch(request, *args, **kwargs)
-    
+    def form_valid(self, form):
+        tanggal = form.cleaned_data['tanggal']
+        shift = form.cleaned_data['shift']
+        jumlah_purge = form.cleaned_data['jumlah_purge']
+        jumlah_ng = form.cleaned_data['jumlah_ng']
+        jumlah_runner = form.cleaned_data['jumlah_runner']
+        pic = form.cleaned_data['pic']
+        t = super(ScrapCreateView, self).form_valid(form = form)
+        form.instance.pic = self.request.user
+        form.save()
+        return t
 
-class ExportProduct(View):
-    def __init__(self, request):
-        self.request = request
-        self.resource = ProductResources()
-        self.dataset = self.resource.export().sort(col='id', reverse=True)
+class ScrapListView(ListView):
+    model = Scrap
+    template_name = 'scrap_list.html'
+    context_object_name = 'scrap_list'
+    paginate_by = 50
+    ordering = ['-id']
 
-    def export_excel(self):
-        response = HttpResponse(self.dataset.xls, content_type = 'application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment; filename = "Part List.xls"'
-        return response
+class ScrapUpdateView(UpdateView):
+    form_class = ScrapForm
+    model = Scrap
+    template_name = 'scrap_edit.html'
 
-    def export_csv(self):
-        response = HttpResponse(self.dataset.csv, content_type = 'text/csv')
-        response['Content-Disposition'] = 'attachment; filename = "Part List.csv"'
-        return response
+    def form_valid(self, form):
+        tanggal = form.cleaned_data['tanggal']
+        shift = form.cleaned_data['shift']
+        jumlah_purge = form.cleaned_data['jumlah_purge']
+        jumlah_ng = form.cleaned_data['jumlah_ng']
+        jumlah_runner = form.cleaned_data['jumlah_runner']
+        pic = form.cleaned_data['pic']
+        t = super(ScrapUpdateView, self).form_valid(form = form)
+        form.instance.pic = self.request.user
+        form.save()
+        return t
 
-    def export_tsv(self):
-        response = HttpResponse(self.dataset.tsv, content_type = 'text/tsv')
-        response['Content-Disposition'] = 'attachment; filename = "Part List.tsv"'
-        return response 
-
-class ImportProduct(View):
-    def __init__(self, request):
-        self.request = request
-        self.template = 'product_import.html'
-
-    def simple_upload(self):
-        if self.request.method == 'post':
-            self.resource = ProductResources()
-            self.dataset = Dataset()
-            self.new_product_list = self.request.FILES['myfile']
-
-            self.imported_data = self.dataset.load(self.new_product_list.read())
-            self.result = self.resource.import_data(dataset=self.dataset, dry_run=True)
-
-            if not self.result.has_errors():
-                self.resource.import_data(dataset=self.dataset, dry_run=False)
-
-        return render(request=self.request, template_name=self.template)
-
+class ScrapDeleteView(DeleteView):
+    model = Scrap
+    template_name = 'scrap_delete.html'
+    context_object_name = 'scrap_delete'
+    success_url = reverse_lazy('scrap_list')
 
 def export_hopper_xlsx(request):
     if request.method == 'POST':
@@ -209,27 +258,23 @@ def export_hopper_xlsx(request):
     else:
         pass
 
-
     output = io.BytesIO()
     
     wb = xlsxwriter.Workbook(output, {'in_memory':True})
-    ws = wb.add_worksheet(name = 'Hopper Fill Data')
+    ws = wb.add_worksheet(name = 'Material Hopper List')
 
     row_num = 0
-
 
     bold = wb.add_format({'bold':True})
     date_format = wb.add_format({'num_format':'d mmm yyyy'})
     time_format = wb.add_format({'num_format':'hh:mm'})
 
-    columns = [ 'No Mesin', 'Part ID', 'Part Name',
-                'Product Material', 'No Lot', 'Temperature', 'Tanggal', 
-                'Jumlah Isi', 'Jam Isi', 'Shift', 'PIC']
+    columns = [ 'No Mesin', 'Part ID', 'Part Name', 'Material', 'No Lot', 'Temperature (°C)', 'Tanggal', 'Jam Isi',
+                 'CO Virgin (kg)', 'CO Regrind (kg)', 'Usage Virgin (kg)', 'Usage Regrind (kg)', 'Shift', 'PIC']
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], bold)
 
-    
     filtered_query = HopperFillData.objects.filter(tanggal__gte=request_date_start.date(), tanggal__lte=request_date_end.date())
 
     if filtered_query:
@@ -240,65 +285,37 @@ def export_hopper_xlsx(request):
         no_lot = filtered_query.values_list('no_lot', flat=True).order_by('tanggal', 'jam_isi')
         temp = filtered_query.values_list('temp', flat=True).order_by('tanggal', 'jam_isi')
         tanggal = filtered_query.values_list('tanggal', flat=True).order_by('tanggal', 'jam_isi')
-        jumlah_isi = filtered_query.values_list('jumlah_isi', flat=True).order_by('tanggal', 'jam_isi')
         jam_isi = filtered_query.values_list('jam_isi', flat=True).order_by('tanggal', 'jam_isi')
+        co_virgin = filtered_query.values_list('co_virgin', flat=True).order_by('tanggal', 'jam_isi')
+        co_regrind = filtered_query.values_list('co_regrind', flat=True).order_by('tanggal', 'jam_isi')
+        virgin = filtered_query.values_list('pemakaian_virgin', flat=True).order_by('tanggal', 'jam_isi')
+        regrind = filtered_query.values_list('pemakaian_regrind', flat=True).order_by('tanggal', 'jam_isi')
         shift = filtered_query.values_list('shift', flat=True).order_by('tanggal', 'jam_isi')
         pic = filtered_query.values_list('pic', flat=True).order_by('tanggal', 'jam_isi')
 
-        r = 1
-        c = 0
-        for d in no_mesin:
-            ws.write_string(r, c, d)
-            r+=1
-        r = 1
-        for d in part_id:
-            ws.write_string(r, c+1, d)
-            r+=1
-        r = 1
-        for d in part_name:
-            ws.write_string(r, c+2, d)
-            r+=1
-        r = 1
-        for d in material:
-            ws.write_string(r, c+3, d)
-            r+=1
-        r = 1
-        for d in no_lot:
-            ws.write_string(r, c+4, str(d))
-            r+=1
-        r = 1
-        for d in temp:
-            ws.write_number(r, c+5, d)
-            r+=1
-        r = 1
-        for d in tanggal:
-            ws.write_datetime(r, c+6, d, date_format)
-            r+=1
-        r = 1
-        for d in jumlah_isi:
-            ws.write_number(r, c+7, d)
-            r+=1
-        r = 1
-        for d in jam_isi:
-            ws.write_datetime(r, c+8, d, time_format)
-            r+=1
-        r = 1
-        for d in shift:
-            ws.write_string(r, c+9, d)
-            r+=1
-        r = 1
-        for d in pic:
-            ws.write_string(r, c+10, d)
-            r+=1
+        q_list = [no_mesin, part_id, part_name, material, no_lot, temp, tanggal, jam_isi, co_virgin, co_regrind, virgin, regrind, shift, pic]
+        
+        for q in range(0, len(q_list)):
+            r = 1
+            for d in q_list[q]:
+                if isinstance(d, str):
+                    ws.write_string(r, q, d)
+                elif isinstance(d, int):
+                    ws.write_number(r, q, d)
+                elif isinstance(d, date):
+                    ws.write_datetime(r, q, d, date_format)
+                elif isinstance(d, time):
+                    ws.write_datetime(r, q, d, time_format)
+                else:
+                    pass
+                r += 1
 
         wb.close()
 
         output.seek(0)
-        
-        UserAction.objects.create(sender=request.user, verb = "Export Excel " + str(datetime.now().strftime("%d-%m-%Y,%H:%M:%S")))
 
         response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename = Hopper Fill Data ' + str(request_date_start.strftime('%d-%m-%Y')) + '_-_' +  str(request_date_end.strftime('%d-%m-%Y')) + '.xlsx'
+        response['Content-Disposition'] = 'attachment; filename = Material Hopper ' + str(request_date_start.strftime('%d-%m-%Y')) + '_-_' +  str(request_date_end.strftime('%d-%m-%Y')) + '.xlsx'
 
         
     else:
@@ -311,70 +328,40 @@ def export_hopper_xlsx(request):
         response = HttpResponse("<script> alert( '%s' ); window.location='%s' </script>" %(warning, url))
 
     return response
+
     
 
-def get_material_used_per_day(no_mesin, part_id, part_name, material, no_lot, temp, tanggal, jumlah_isi, jam_isi, shift, pic):
-    no_mesin = no_mesin.order_by('-tanggal')
-    part_id = part_id.order_by('-tanggal')
-    part_name = part_name.order_by('-tanggal')
-    material = material.order_by('-tanggal')
-    no_lot = no_lot.order_by('-tanggal')
-    temp = temp.order_by('-tanggal')
-    tanggal = tanggal.order_by('-tanggal')
-    jumlah_isi = jumlah_isi.order_by('-tanggal')
-    jam_isi = jam_isi.order_by('-tanggal')
-    shift = shift.order_by('-tanggal')
-    pic = pic.order_by('-tanggal')
+def get_material_used(queryset):
+    material = queryset.values_list('product__material', flat=True).order_by('tanggal', 'jam_isi')
+    tanggal = queryset.values_list('tanggal', flat=True).order_by('tanggal', 'jam_isi')
+    virgin = queryset.values_list('pemakaian_virgin', flat=True).order_by('tanggal', 'jam_isi')
+    regrind = queryset.values_list('pemakaian_regrind', flat=True).order_by('tanggal', 'jam_isi')
 
-    temp_qs = []
+    material_list = []
+    for m in material:
+        if m not in material_list:
+            material_list.append(m)
 
-    for i in range(0, len(no_mesin)):
-        q = [no_mesin[i], part_id[i], part_name[i], material[i], no_lot[i], temp[i], tanggal[i],
-         jumlah_isi[i], jam_isi[i], shift[i], pic[i]]
-        temp_qs.append(q)
+    #print(material_list)
 
-    gr_start_id = []
-    gr_start_id.append(0)
+    material_sum = []
+    for m in material_list:
+        query = queryset.filter(product__material=m)
+        virgin = query.aggregate(Sum('pemakaian_virgin'))
+        regrind = query.aggregate(Sum('pemakaian_regrind'))
+        material_sum.append([m, virgin, regrind])
 
-    gr = 1
+    result = []
+    for i in range(0, len(material_sum)):
+        material = material_sum[i][0]
+        virgin = material_sum[i][1]['pemakaian_virgin__sum']
+        regrind = material_sum[i][2]['pemakaian_regrind__sum']
+        result.append([material, virgin, regrind])
 
-    for i in range(0, len(temp_qs)):
-        try:
-            if temp_qs[i][6] != temp_qs[i+1][6]:
-                gr += 1
-                gr_start_id.append(i+1)
-            else:
-                pass
-        except IndexError:
-            pass
-    
-    def gr_per_date(gr_t, gr_st_id):
-        gr_qs = []
-        for g in range(0, len(gr_st_id)-1):
-            gr_qs.append(gr_t[gr_st_id[g]:gr_st_id[g+1]])
-        gr_qs.append(gr_t[gr_st_id[-1]:len(gr_t)])
-        return gr_qs
-
-    gr_qs = gr_per_date(temp_qs, gr_start_id)
-
-    def gr_per_mat(gr_qs):
-        mat = []
-        result = []
-        for qs in gr_qs:
-            for q in qs:
-                if q[3] not in mat:
-                    mat.append(q[3])
-
-            for m in mat:
-                amount = 0
-                for q in qs:
-                    if q[3] == m:
-                        amount += q[7]
-                result.append([qs[0][6], m, amount])
-        return result
-
-    result = gr_per_mat(gr_qs) 
+    #print(result)
     return result
+    
+
 
 def export_material_usage(request):
     if request.method == 'POST':
@@ -386,103 +373,194 @@ def export_material_usage(request):
     else:
         pass
 
-    print(request_date)
-
     output = io.BytesIO()
+
+    start_week = request_date.date() - timedelta(days=7)
+    start_month = request_date.date() - timedelta(days=30)
     
     wb = xlsxwriter.Workbook(output, {'in_memory':True})
-    ws_1 = wb.add_worksheet(name = 'Material Usage Report - Daily')
-    ws_2 = wb.add_worksheet(name = 'Material Usage Report - Weekly')
-    ws_3 = wb.add_worksheet(name = 'Material Usage Report - Monthly')
+    ws_1 = wb.add_worksheet(name = ('Report (' + str(request_date.strftime('%d-%m-%Y'))+')'))
+    ws_2 = wb.add_worksheet(name = ('Report (' + str(start_week.strftime('%d-%m-%Y')) + 'sd' + str(request_date.strftime('%d-%m-%Y'))+')'))
+    ws_3 = wb.add_worksheet(name = ('Report (' + str(start_month.strftime('%d-%m-%Y')) + 'sd' + str(request_date.strftime('%d-%m-%Y'))+')'))
 
     bold = wb.add_format({'bold':True})
     date_format = wb.add_format({'num_format':'d mmm yyyy'})
     
-    no_mesin = HopperFillData.objects.values_list('no_mesin', flat=True).order_by('-id')
-    part_id = HopperFillData.objects.values_list('product__part_id', flat=True).order_by('-id')
-    part_name = HopperFillData.objects.values_list('product__part_name', flat=True).order_by('-id')
-    material = HopperFillData.objects.values_list('product__material', flat=True).order_by('-id')
-    no_lot = HopperFillData.objects.values_list('no_lot', flat=True).order_by('-id')
-    temp = HopperFillData.objects.values_list('temp', flat=True).order_by('-id')
-    tanggal = HopperFillData.objects.values_list('tanggal', flat=True).order_by('-id')
-    jumlah_isi = HopperFillData.objects.values_list('jumlah_isi', flat=True).order_by('-id')
-    jam_isi = HopperFillData.objects.values_list('jam_isi', flat=True).order_by('-id')
-    shift = HopperFillData.objects.values_list('shift', flat=True).order_by('-id')
-    pic = HopperFillData.objects.values_list('pic', flat=True).order_by('-id')
+    filtered_query1 = HopperFillData.objects.filter(tanggal=request_date.date())
+    filtered_query2 = HopperFillData.objects.filter(tanggal__gte= (request_date.date() - timedelta(days=7)),tanggal__lte=request_date.date())
+    filtered_query3 = HopperFillData.objects.filter(tanggal__gte= (request_date.date() - timedelta(days=30)),tanggal__lte=request_date.date())
 
-    daily_material_usage = get_material_used_per_day(no_mesin=no_mesin, part_id=part_id, part_name=part_name,
-                            material=material, no_lot=no_lot, temp=temp, tanggal=tanggal, jumlah_isi=jumlah_isi,
-                            jam_isi=jam_isi, shift=shift, pic=pic)
-
-    x, y = 1, 0
-    ws_1.write(0, 0, 'Tanggal', bold)
-    ws_1.write(0, 1, 'Material', bold)
-    ws_1.write(0, 2, 'Jumlah yang digunakan (kg)', bold)
+    daily_material_usage = get_material_used(queryset=filtered_query1)
+    weekly_material_usage = get_material_used(queryset=filtered_query2)
+    monthly_material_usage = get_material_used(queryset=filtered_query3)
 
     #untuk ws_1 (daily)
-    for dl in daily_material_usage:
-        if dl[2] != 0:
-            if dl[0] == request_date.date():
-                ws_1.write_datetime(x, y, dl[0], date_format)
-                ws_1.write_string(x, y+1, dl[1])
-                ws_1.write_number(x, y+2, dl[2])
-                x += 1
-            else:
-                pass
-        else:
-            pass
-    pass
-
     x, y = 1, 0
-    ws_2.write(0, 0, 'Tanggal', bold)
-    ws_2.write(0, 1, 'Material', bold)
-    ws_2.write(0, 2, 'Jumlah yang digunakan (kg)', bold)
+    ws_1.write(0, 0, 'Material', bold)
+    ws_1.write(0, 1, 'Virgin Usage (kg)', bold)
+    ws_1.write(0, 2, 'Regrind Usage (kg)', bold)
+
+    for dl in daily_material_usage:
+        ws_1.write_string(x, y, dl[0])
+        ws_1.write_number(x, y+1, dl[1])
+        ws_1.write_number(x, y+2, dl[2])
+        x += 1
+
 
     #untuk ws_2 (weekly)
-    date_start = request_date.date()
-    date_end = request_date.date() - timedelta(days=7)
-    for dl in daily_material_usage:
-        if dl[2] != 0:
-            if dl[0] <= date_start and dl[0] >= date_end:
-                ws_2.write_datetime(x, y, dl[0], date_format)
-                ws_2.write_string(x, y+1, dl[1])
-                ws_2.write_number(x, y+2, dl[2])
-                x += 1
-            else:
-                pass
-        else:
-            pass
-    pass
-
     x, y = 1, 0
-    ws_3.write(0, 0, 'Tanggal', bold)
-    ws_3.write(0, 1, 'Material', bold)
-    ws_3.write(0, 2, 'Jumlah yang digunakan (kg)', bold)
+    ws_2.write(0, 0, 'Material', bold)
+    ws_2.write(0, 1, 'Virgin Usage (kg)', bold)
+    ws_2.write(0, 2, 'Regrind Usage (kg)', bold)
+
+    for dl in weekly_material_usage:
+        ws_2.write_string(x, y, dl[0])
+        ws_2.write_number(x, y+1, dl[1])
+        ws_2.write_number(x, y+2, dl[2])
+        x += 1
+
 
     #untuk ws_3 (monthly)
-    date_start = request_date.date()
-    date_end = request_date.date() - timedelta(days=30)
-    for dl in daily_material_usage:
-        if dl[2] != 0:
-            if dl[0] <= date_start and dl[0] >= date_end:
-                ws_3.write_datetime(x, y, dl[0], date_format)
-                ws_3.write_string(x, y+1, dl[1])
-                ws_3.write_number(x, y+2, dl[2])
-                x += 1
-            else:
-                pass
-        else:
-            pass
-    pass
+    x, y = 1, 0
+    ws_3.write(0, 0, 'Material', bold)
+    ws_3.write(0, 1, 'Virgin Usage (kg)', bold)
+    ws_3.write(0, 2, 'Regrind Usage (kg)', bold)
+
+    for dl in monthly_material_usage:
+        ws_3.write_string(x, y, dl[0])
+        ws_3.write_number(x, y+1, dl[1])
+        ws_3.write_number(x, y+2, dl[2])
+        x += 1
+
 
     wb.close()
 
     output.seek(0)
-    
-    UserAction.objects.create(sender=request.user, verb = "Export Report " + str(datetime.now().strftime("%d-%m-%Y,%H:%M:%S")))
 
     response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename = Material Usage Report ' + str(request_date.strftime('%d-%m-%Y')) + '.xlsx'
 
     return response
+
+def import_product_xlsx(request):
+    if request.method == 'POST':
+        request_file = request.FILES.get('import_product_xlsx')
+        print('request_file = ', request_file)
+        if request_file:
+            fs = FileSystemStorage()
+            file = fs.save(request_file.name, request_file)
+            print('file = ', file)
+            wb = openpyxl.load_workbook(filename=file, read_only=True)
+            ws = wb.active
+
+            product_list = []
+            for row in ws.iter_rows(min_row=2):
+                product = Product()
+                product.part_id = row[1].value
+                product.part_name = row[2].value
+                product.material = row[3].value
+                product.cycle_time = row[4].value
+                product.customer = row[5].value
+                product.part_weight = row[6].value
+                product.runner_weight = row[7].value
+                product.cavity = row[8].value
+
+                if product.part_id != None and product.part_name != None and product.material != None and product.cycle_time != None and product.customer != None and product.part_weight != None and product.runner_weight != None and product.cavity != None:    
+                    product_list.append(product)
+
+            Product.objects.bulk_create(product_list)
+
+            wb.close()
+            fs.delete(file)
+
+            url = reverse_lazy('product')
+            warning = 'Success importing new products from Excel file.'
+
+            response = HttpResponse("<script> alert( '%s' ); window.location='%s' </script>" %(warning, url))
+        
+    return response
+
+
+
+def export_scrap_xlsx(request):
+    if request.method == 'POST':
+        if request.POST.get('request_date_start'):
+            request_date_start = request.POST.get('request_date_start')
+            request_date_start = datetime.strptime(request_date_start, '%Y-%m-%d')
+        else:
+            request_date_start = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+
+        if request.POST.get('request_date_end'):
+            request_date_end = request.POST.get('request_date_end')
+            request_date_end = datetime.strptime(request_date_end, '%Y-%m-%d')
+        else:
+            request_date_end = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+    else:
+        pass
+
+    output = io.BytesIO()
     
+    wb = xlsxwriter.Workbook(output, {'in_memory':True})
+    ws = wb.add_worksheet(name = 'Scrap')
+
+    row_num = 0
+
+    bold = wb.add_format({'bold':True})
+    date_format = wb.add_format({'num_format':'d mmm yyyy'})
+    time_format = wb.add_format({'num_format':'hh:mm'})
+    decimal_format = wb.add_format({'num_format':'0.00'})
+
+    columns = [ 'Tanggal', 'Shift', 'Purging (kg)', 'Part Scrap (kg)', 'Runner (kg)', 'PIC']
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], bold)
+
+    filtered_query = Scrap.objects.filter(tanggal__gte=request_date_start.date(), tanggal__lte=request_date_end.date())
+
+    if filtered_query:
+        tanggal = filtered_query.values_list('tanggal', flat=True).order_by('tanggal', 'shift')
+        shift = filtered_query.values_list('shift', flat=True).order_by('tanggal', 'shift')
+        jumlah_purge = filtered_query.values_list('jumlah_purge', flat=True).order_by('tanggal', 'shift')
+        jumlah_ng = filtered_query.values_list('jumlah_ng', flat=True).order_by('tanggal', 'shift')
+        jumlah_runner = filtered_query.values_list('jumlah_runner', flat=True).order_by('tanggal', 'shift')
+        pic = filtered_query.values_list('pic', flat=True).order_by('tanggal', 'shift')
+
+        q_list = [tanggal, shift, jumlah_purge, jumlah_ng, jumlah_runner, pic]
+        
+        for q in range(0, len(q_list)):
+            r = 1
+            for d in q_list[q]:
+                if isinstance(d, str):
+                    ws.write_string(r, q, d)
+                elif isinstance(d, int):
+                    ws.write_number(r, q, d)
+                elif isinstance(d, float):
+                    ws.write_number(r, q, d, decimal_format)
+                elif isinstance(d, decimal.Decimal):
+                    ws.write_number(r, q, d, decimal_format)
+                elif isinstance(d, date):
+                    ws.write_datetime(r, q, d, date_format)
+                elif isinstance(d, time):
+                    ws.write_datetime(r, q, d, time_format)
+                else:
+                    pass
+                r += 1
+
+        wb.close()
+
+        output.seek(0)
+
+        response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename = Scrap ' + str(request_date_start.strftime('%d-%m-%Y')) + '_-_' +  str(request_date_end.strftime('%d-%m-%Y')) + '.xlsx'
+
+        
+    else:
+        wb.close()
+        output.seek(0)
+
+        url = reverse_lazy('hopper_fill_data')
+        warning = '0 Entry with date between ' + str(request_date_start.date()) + ' and ' + str(request_date_end.date())
+
+        response = HttpResponse("<script> alert( '%s' ); window.location='%s' </script>" %(warning, url))
+
+    return response

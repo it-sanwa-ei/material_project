@@ -2,22 +2,62 @@
 {% load crispy_forms_tags %}
 
 
-    {% block title %} Hopper Fill Form {% endblock title %}
+{% block title %} Material Hopper Form {% endblock title %}
 
+<head>
+    {%block javascript %}
+    <script>
+        $("#id_no_mesin").change(function(){
+            console.log($(this).val());
+            var no_mesin = $(this).val();
+            $.ajax({
+                url: '{% url "ajax_fill_hopper_form" %}',
+                data: {'no_mesin':no_mesin},
+                dataType: 'json',
+                success: function(hopper_dict){
+                    console.log(hopper_dict)
+                    $("#id_product").val(hopper_dict.product_id).trigger('change');
+                    $("#id_temp").val(hopper_dict.temp).trigger('change');
+                    $("#id_co_virgin").val(hopper_dict.co_virgin).trigger('change');
+                    $("#id_co_regrind").val(hopper_dict.co_regrind).trigger('change');
+                    $("#id_total_co").val((hopper_dict.co_virgin + hopper_dict.co_regrind)).trigger('change');
+                    if (hopper_dict.kebutuhan_material){
+                        if (hopper_dict.kebutuhan_material > 0) {
+                            $("#id_kebutuhan_material").val(((hopper_dict.kebutuhan_material)-(hopper_dict.pemakaian_virgin + hopper_dict.pemakaian_regrind))).trigger('change');
+                        } else {}
+                    } else {
+                        $("#id_kebutuhan_material").val(((hopper_dict.co_virgin + hopper_dict.co_regrind)-(hopper_dict.pemakaian_virgin + hopper_dict.pemakaian_regrind))).trigger('change');
+                    }
+                    }
+                })
+        });
+        $("#id_kebutuhan_material").change(function(){
+            var kebutuhan_material = $(this).val();
+            if (kebutuhan_material <=0){
+                $("#id_co_virgin").val(0).trigger('change');
+                $("#id_co_regrind").val(0).trigger('change');
+                $("#id_total_co").val(0).trigger('change');
+            }
+        })
+    </script>
+    {% endblock javascript %}
+</head>
 
+<body>
+    {% block header %} Material Hopper Form {% endblock header %}
 
+    {% block content %}
+    <style>
+        form label{
+            display: block;
+        }
+    </style>
+    
 
-    {% block content %} 
-<div>
-    <form method="post" action="" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{form|crispy}}
-        <input type="submit" value="Submit" class="btn btn-primary"/>
-    </form>
-</div>
-
-<div>
-	<br>
-</div>
+    <div>
+        {% csrf_token %} 
+        {% crispy form %}
+    </div>
+    <br>
     {% endblock content %}
-
+</body>

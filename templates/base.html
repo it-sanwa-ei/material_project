@@ -1,79 +1,118 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 
-        <title>{% block title %} Produksi {% endblock title %}</title>
+    <title>{% block title %} Produksi {% endblock title %}</title>
 
-        <!--Bootstrap CSS-->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-        <!--Select2 CSS--> 
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-        <!--FontAwesome CSS-->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <!--jQuery--> 
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> 
-        <!--Select2 JS--> 
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.full.min.js"></script>
-        <!--FontAwesome-->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js" integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        
-    
-    </head>
-    <body style="display: grid; grid-template-rows: auto 1fr auto; min-height: 10vh;">
-        <div class="container">
-          <header class="p-xl-3 mb-3 border-bottom" style="padding-bottom: 1em;">
-            <div class="container">
-              <div class="d-flex flex-wrap align-items-center justify-content-center
-                justify-content-lg-start">
-                <a class="navbar-brand" href="{% url 'home' %}" style="font-size: large; resize: vertical;">PT. SANWA ENGINEERING INDONESIA</a>
-                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center
-                  mb-md-0">
-                {% if user.is_authenticated %}
-                  <li class="nav-link px-2 link-dark"></li>
-                </ul>
-                <div class="dropdown text-end">
-                  <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle"
-                    id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ user.username }}
-                  </a>
-                  <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
-                    <li><a class="dropdown-item" href="{% url 'password_change'%}">
-                      Change password</a></li>
-                    <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
-                  </ul>
-                </div>
-                {% else %}
-                </ul>
-                <div class="text-end">
-                  <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">Log In</a>
-                  <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
-                </div>
-                {% endif %}        
-              </div>
+    <!--Bootstrap CSS-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <!--Select2 CSS--> 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <!--Select2 Bootstrap5 CSS-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <!--FontAwesome CSS-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!--jQuery--> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> 
+    <!--Bootstrap JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <!--Select2 JS--> 
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.full.min.js"></script>
+    <!--FontAwesome JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js" integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  
+  </head>
+  <body style="display: grid; grid-template-rows: auto 1fr auto; min-height: 10vh;">
+    <div id="production_navbar">
+      <nav class="navbar navbar-expand-md navbar-light bg-primary md-4 justify-content-center pb-3" style="z-index: 5;">
+        <div class="container justify-content-center">
+          <div class="d-flex p-1 flex-fill align-items-center justify-content-start">
+            <a class="navbar-brand" href="{% url 'home' %}"><img src="https://i.ibb.co/NKkyxjW/sanwa-logo.png" alt="sanwa-logo" style="width: auto; height: 50px;"></a>
+            <a class="navbar-brand align-self-center justify-content-center" href="{% url 'home' %}" style="font-size: 20px; resize: both; color: white; font-weight: bold;">PT. SANWA ENGINEERING INDONESIA</a>
+          </div>
+          <div class="d-flex p-2 flex-fill justify-content-center justify-content-lg-center">
+            <ul class="nav col-lg-auto me-lg-auto mb-2 mb-md-0 justify-content-center">
+            {% if user.is_authenticated %}
+            </ul>
+            <div class="dropdown align-self-center text-end">
+              <a href="#" class="flex-column link-dark text-decoration-none dropdown-toggle align-self-end" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 20px; color:white;">
+                {{ user.username }}
+              </a>
+              <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                <li><a class="dropdown-item" href="{% url 'password_change'%}">Change password</a></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+              </ul>
             </div>
-          </header>
-      
-          <main>
-            {% block content %}
-            {% endblock content %}
-          </main>
+            {% else %}
+            </ul>
+            <div class="text-end">
+              <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Log In</a>
+              <a href="{% url 'register' %}" class="btn btn-outline-light">Register</a>
+            </div>
+            {% endif %}        
+          </div>
         </div>
+      </nav>
+    </div>
 
+    <div class="container-fluid">
+      <div class="row flex-nowrap">
+          <div class="col-auto px-0">
+              <div id="sidebar" class="collapse collapse-horizontal border-end-0">
+                  <div id="sidebar-nav" class="list-group border-0 rounded-0 text-sm-start min-vh-100">
+                      <a href="{% url 'product_input' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-gear"></i> <span>Product Form</span> </a>
+                      <a href="{% url 'product' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-gears"></i> <span>Product List</span></a>
+                      <a href="{% url 'hopper_fill' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-file-pen"></i> <span>Material Hopper Form</span></a>
+                      <a href="{% url 'hopper_fill_data' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-clipboard-list"></i> <span>Material Hopper List</span></a>
+                      <a href="{% url 'scrap_input' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-recycle"></i> <span>Scrap Form</span></a>
+                      <a href="{% url 'scrap_list' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-regular fa-clipboard"></i> <span>Scrap List</span></a>
+                      <a href="#" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-rotate"></i> <span>Mixing</span></a>
+                      <a href="#" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-cart-flatbed"></i> <span>Pulling</span></a>
+                      <a href="#" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-regular fa-square-plus"></i> <span>Option</span></a>
+                  </div>
+              </div>
+          </div>
+          <main class="col ps-md-2 pt-2">
+              <a href="#" data-bs-target="#sidebar" data-bs-toggle="collapse" class="border rounded-3 p-1 text-decoration-none">&#9776; Menu</a>
+              <div class="page-header pt-3 text-center">
+                  <h2>{% block header %}{% endblock header %}</h2>
+              </div>
+              <p class="lead">{% block note %}{% endblock note %}</p>
+              <hr>
+              <div class="row">
+                  <div class="col-12">
+                    <main>
+                      {% block content %}
+                      {% endblock content %}
+                    </main>
+                  </div>
+              </div>
+          </main>
+      </div>
+    </div>
+  </body>
 
-        <!-- Bootstrap JavaScript Bundle -->
-        <script>
-          $(document).ready(function()
-          {
-          // Initialize select2
-          $("#id_no_mesin").select2();
-          $("#id_product").select2();
-          });
-          </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-        {% block javascript %} 
-        {% endblock javascript %}
-      </body>
+    <!-- Some Scripts -->
+  <script>
+    $(document).ready(function()
+    {
+    // Initialize select2
+      $("#id_no_mesin").select2({
+        theme: 'bootstrap-5'
+      });
+      $("#id_product").select2({
+        theme: 'bootstrap-5'
+      });
+    });
+    </script>
+
+  {% block javascript %} 
+  {% endblock javascript %}
+
 </html>

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} Scrap Form {% endblock title %}
+{% block header %} Scrap Form {% endblock header %}
+
+
+{% block content %}
+<style>
+    form label{
+        display: block;
+    }
+</style>
+
+<div>
+    {% csrf_token %} 
+    {% crispy form %}
+</div>
+<br>
+{% endblock content %}

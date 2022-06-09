@@ -1,0 +1,89 @@
+{% extends 'base.html' %} 
+{% load admin_urls %}
+
+{% block title %} Scrap List {% endblock title %}
+{% block header %} Scrap List {% endblock header %}
+
+{% block note %}
+<div>
+    <form method="post" action="{% url 'export_scrap_xlsx' %}">
+      {% csrf_token %}
+      <div class="form-group row" style="padding-bottom: 1em;">
+        <div class="form-group col-md-3">
+          <label for="request_date_start">From</label>
+          <input type="date" name="request_date_start" id="request_date_start" class="form-control" placeholder="From (dd/mm/yyyy)">
+        </div>
+        <div class="form-group col-md-3">
+          <label for="request_date_end">To</label>
+          <input type="date" name="request_date_end" id="request_date_end" class="form-control" placeholder="To (dd/mm/yyyy)">
+        </div>
+        <div class="form-group col-md-3">
+          <label></label>
+          <input type="submit" value="Export Scrap Report" class="btn btn-success form-control">
+        </div>
+      </div>
+    </form>
+</div>
+{% endblock note %}
+
+{% block content %} 
+
+<div>
+    <table style="border: 1px solid white; width: 100%;">
+        <tr style="border: 1px solid white;">
+            <th style="width: 10%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">Tanggal</th>
+            <th style="width: 10%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">Shift</th>
+            <th style="width: 20%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">Purging (kg)</th>
+            <th style="width: 20%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">Part Scrap (kg)</th>
+            <th style="width: 20%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">Runner (kg)</th>
+            <th style="width: 10%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">PIC</th>
+            <th style="width: 6%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;" colspan="2"></th>
+        </tr>
+        {% for scrap in scrap_list %} 
+        <tr style="border: 1px solid white;">
+            <td style="width: 10%; border: 1px solid white; background-color: lightblue; border-radius: 5px;">{{scrap.tanggal}}</td>
+            <td style="width: 10%; border: 1px solid white; background-color: lightblue; border-radius: 5px;">{{scrap.shift}}</td>
+            <td style="width: 20%; border: 1px solid white; background-color: lightblue; border-radius: 5px;">{{scrap.jumlah_purge}}</td>
+            <td style="width: 20%; border: 1px solid white; background-color: lightblue; border-radius: 5px;">{{scrap.jumlah_ng}}</td>
+            <td style="width: 20%; border: 1px solid white; background-color: lightblue; border-radius: 5px;">{{scrap.jumlah_runner}}</td>
+            <td style="width: 10%; border: 1px solid white; background-color: lightblue; border-radius: 5px;">{{scrap.pic}}</td>
+            <td style="width: 3%;  border: 1px solid white; border-right: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'scrap_edit' scrap.pk %}"><i class="fa-solid fa-pen"></i></a></td>
+            <td style="width: 3%;  border: 1px solid white; border-left: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'scrap_delete' scrap.pk %}"><i class="fa-solid fa-trash-can"></i></a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<nav aria-label="Page navigation example" style="padding-top: 3em;">
+    {% if is_paginated %}
+    <ul class="pagination justify-content-center .pagination-sm">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{page_obj.previous_page_number}}"
+          >&laquo;</a
+        >
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <a class="page-link" href="#">&laquo;</a>
+      </li>
+      {% endif %} {% for i in paginator.page_range %} {% if page_obj.number == i %}
+      <li class="page-item"><a class="page-link active bg-primary bg-opacity-25">{{ i }}</a></li>
+      {% else %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+      </li>
+      {% endif %} {% endfor %} {% if page_obj.has_next %}
+      <li class="page-item">
+        <a href="?page={{page_obj.next_page_number}}" class="page-link">&raquo;</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <a class="page-link">&raquo;</a>
+      </li>
+      {% endif %}
+    </ul>
+    {% endif %}
+  </nav>
+
+{% endblock content %}
