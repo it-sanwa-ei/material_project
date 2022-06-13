@@ -160,7 +160,7 @@ EMAIL_HOST_USER = 'sup.sanwaei@gmail.com'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_PASSWORD = 'ASD123asd!@#'
+EMAIL_HOST_PASSWORD = 'ucibydxxidjnbkvg'
 
 '''
 ENVIRONMENT = os.environ.get('ENVIRONMENT', default = 'development')
