@@ -270,7 +270,7 @@ def export_hopper_xlsx(request):
     time_format = wb.add_format({'num_format':'hh:mm'})
 
     columns = [ 'No Mesin', 'Part ID', 'Part Name', 'Material', 'No Lot', 'Temperature (°C)', 'Tanggal', 'Jam Isi',
-                 'CO Virgin (kg)', 'CO Regrind (kg)', 'Usage Virgin (kg)', 'Usage Regrind (kg)', 'Shift', 'PIC']
+                 'CO Virgin (kg)', 'CO Regrind (kg)', 'Total CO (kg)', 'Usage Virgin (kg)', 'Usage Regrind (kg)', 'Total Usage (kg)', 'Shift', 'PIC']
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], bold)
@@ -293,7 +293,20 @@ def export_hopper_xlsx(request):
         shift = filtered_query.values_list('shift', flat=True).order_by('tanggal', 'jam_isi')
         pic = filtered_query.values_list('pic', flat=True).order_by('tanggal', 'jam_isi')
 
-        q_list = [no_mesin, part_id, part_name, material, no_lot, temp, tanggal, jam_isi, co_virgin, co_regrind, virgin, regrind, shift, pic]
+        total_co = []
+        total_usage = []
+
+        if len(co_virgin) == len(co_regrind):
+            for i in range(0, len(co_virgin)):
+                co = co_virgin[i] + co_regrind[i]
+                total_co.append(co)
+
+        if len(virgin) ==  len(regrind):
+            for i in range(0, len(virgin)):
+                usage = virgin[i] + regrind[i]
+                total_usage.append(usage)
+
+        q_list = [no_mesin, part_id, part_name, material, no_lot, temp, tanggal, jam_isi, co_virgin, co_regrind, total_co, virgin, regrind, total_usage, shift, pic]
         
         for q in range(0, len(q_list)):
             r = 1
@@ -356,7 +369,8 @@ def get_material_used(queryset):
         material = material_sum[i][0]
         virgin = material_sum[i][1]['pemakaian_virgin__sum']
         regrind = material_sum[i][2]['pemakaian_regrind__sum']
-        result.append([material, virgin, regrind])
+        total = virgin + regrind
+        result.append([material, virgin, regrind, total])
 
     #print(result)
     return result
@@ -399,11 +413,13 @@ def export_material_usage(request):
     ws_1.write(0, 0, 'Material', bold)
     ws_1.write(0, 1, 'Virgin Usage (kg)', bold)
     ws_1.write(0, 2, 'Regrind Usage (kg)', bold)
+    ws_1.write(0, 3, 'Total Usage (kg)', bold)
 
     for dl in daily_material_usage:
         ws_1.write_string(x, y, dl[0])
         ws_1.write_number(x, y+1, dl[1])
         ws_1.write_number(x, y+2, dl[2])
+        ws_1.write_number(x, y+3, dl[3])
         x += 1
 
 
@@ -412,11 +428,13 @@ def export_material_usage(request):
     ws_2.write(0, 0, 'Material', bold)
     ws_2.write(0, 1, 'Virgin Usage (kg)', bold)
     ws_2.write(0, 2, 'Regrind Usage (kg)', bold)
+    ws_2.write(0, 3, 'Total Usage (kg)', bold)
 
     for dl in weekly_material_usage:
         ws_2.write_string(x, y, dl[0])
         ws_2.write_number(x, y+1, dl[1])
         ws_2.write_number(x, y+2, dl[2])
+        ws_2.write_number(x, y+3, dl[3])
         x += 1
 
 
@@ -425,11 +443,13 @@ def export_material_usage(request):
     ws_3.write(0, 0, 'Material', bold)
     ws_3.write(0, 1, 'Virgin Usage (kg)', bold)
     ws_3.write(0, 2, 'Regrind Usage (kg)', bold)
+    ws_3.write(0, 3, 'Total Usage (kg)', bold)
 
     for dl in monthly_material_usage:
         ws_3.write_string(x, y, dl[0])
         ws_3.write_number(x, y+1, dl[1])
         ws_3.write_number(x, y+2, dl[2])
+        ws_3.write_number(x, y+3, dl[3])
         x += 1
 
 
@@ -510,7 +530,7 @@ def export_scrap_xlsx(request):
     time_format = wb.add_format({'num_format':'hh:mm'})
     decimal_format = wb.add_format({'num_format':'0.00'})
 
-    columns = [ 'Tanggal', 'Shift', 'Purging (kg)', 'Part Scrap (kg)', 'Runner (kg)', 'PIC']
+    columns = [ 'Tanggal', 'Shift', 'Purging (kg)', 'Part Scrap (kg)', 'Runner (kg)', 'Total (kg)', 'PIC']
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], bold)
@@ -525,7 +545,13 @@ def export_scrap_xlsx(request):
         jumlah_runner = filtered_query.values_list('jumlah_runner', flat=True).order_by('tanggal', 'shift')
         pic = filtered_query.values_list('pic', flat=True).order_by('tanggal', 'shift')
 
-        q_list = [tanggal, shift, jumlah_purge, jumlah_ng, jumlah_runner, pic]
+        total_scrap = []
+        if len(jumlah_purge) == len(jumlah_ng) == len(jumlah_runner):
+            for i in range(0, len(jumlah_purge)):
+                row_scrap = jumlah_purge[i] + jumlah_ng[i] + jumlah_runner[i]
+                total_scrap.append(row_scrap)
+
+        q_list = [tanggal, shift, jumlah_purge, jumlah_ng, jumlah_runner, total_scrap, pic]
         
         for q in range(0, len(q_list)):
             r = 1
@@ -558,7 +584,7 @@ def export_scrap_xlsx(request):
         wb.close()
         output.seek(0)
 
-        url = reverse_lazy('hopper_fill_data')
+        url = reverse_lazy('scrap_list')
         warning = '0 Entry with date between ' + str(request_date_start.date()) + ' and ' + str(request_date_end.date())
 
         response = HttpResponse("<script> alert( '%s' ); window.location='%s' </script>" %(warning, url))
