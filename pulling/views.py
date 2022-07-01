@@ -333,7 +333,7 @@ def draw_pulling_label(canvas, start_x, start_y, customer, part_name, pn_cust, p
     canvas.drawString(5, -163, 'MATERIAL :' )
     canvas.drawString(127, -140, 'QTY :' )
     
-    pdfmetrics.registerFont((TTFont('ArialBd','ArialBd.ttf')))
+    pdfmetrics.registerFont((TTFont('ArialBd','Arial_Bold.ttf')))
     if len(customer) <= 25:
         canvas.setFont('ArialBd', 14)
         canvas.drawCentredString(125, -20, customer)               #tulisan customer
@@ -357,7 +357,7 @@ def draw_pulling_label(canvas, start_x, start_y, customer, part_name, pn_cust, p
         canvas.drawCentredString(125, -25, customer2)
         
     if len(part_name) <= 20:
-        canvas.setFont('ArialBd', 14)
+        canvas.setFont('ArialBd', 13)
         canvas.drawCentredString((250/2)+(78/2), -43, part_name)    #tulisan part_name
     elif len(part_name) <= 30:
         canvas.setFont('ArialBd', 9)

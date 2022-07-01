@@ -15,6 +15,7 @@ tz = pytz.timezone('Asia/Jakarta')
 from .models import PullingCustomer, PullingProduct, PullingLabel
 from .models import TempPullingScanInModel, TempPullingScanOutModel
 
+
 class PullingCustomerForm(ModelForm):
     address1 = forms.CharField(max_length=155, required=True)
     address2 = forms.CharField(max_length=100, required=False)
