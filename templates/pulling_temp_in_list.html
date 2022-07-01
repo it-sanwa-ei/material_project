@@ -1,0 +1,78 @@
+{% extends 'base.html' %} 
+{% load admin_urls %}
+{% load render_table from django_tables2 %}
+
+{% block title %} Scan In {% endblock title %}
+
+{% block style %} 
+<style>
+  .pulling_fg th{
+      border: 1px solid white; 
+      background-color: rgb(100, 100, 255); 
+      border-radius: 5px;
+    }
+  .pulling_fg th a {
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+      padding-left: 5px;
+      font-size: large;
+    }
+  .pulling_fg td{
+      border: 1px solid white; 
+      background-color: lightblue; 
+      border-radius: 5px;
+      padding-left: 5px;
+      height: 50px;
+    }
+    .pulling_fg tr:first-of-type td{
+        background-color: greenyellow;
+    }
+
+
+</style>
+{% endblock style %}
+
+{% block header %} Scan In {% endblock header %}
+
+{% block note %}
+<hr>
+<form method="post" action="{% url 'pulling_label_in_decode' %}" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-md-11">
+      <label class="mb-1">Scan Label Barcode</label>
+      <input type="text" name="scan_in_text" id="scan_in_text" class="form-control" autofocus>
+    </div>
+    <button class="btn col-md-1 d-flex align-items-start align-self-start"><img src="https://i.ibb.co/w42nwD7/scan-in.png" onmouseover="this.src='https://i.ibb.co/yq4Sphn/scan-in-hover.png'" onmouseout="this.src='https://i.ibb.co/w42nwD7/scan-in.png'" alt="scan-in" style="border: 1px solid rgb(13, 110, 253);border-radius:15%;" height="60px" /></button>
+  </div>
+</form>
+{% endblock note %}
+
+{% block content %}
+    {% if pulling_temp_in_table %} 
+        {% render_table pulling_temp_in_table %}
+    {% endif %}
+{% endblock content %}
+
+{% block footer %}
+<div>
+    <form method="post" action="{% url 'finish_good_in_warehouse' %}" enctype="multipart/form-data">
+      <div class="form-group row pb-1">
+        {% csrf_token %}
+        <div class="form-group text-start">
+            <label style="font-size: larger;">Confirm Submit?</label>
+            <label><p><br></p></label>
+        </div>
+        <div class="form-group col-md-1">
+          <input type="submit" value="Yes" class="btn btn-primary form-control">
+        </div>
+      </div>  
+    </form>
+</div>
+
+{% endblock footer %}
+
+{% block javascript %} 
+
+{% endblock javascript %}

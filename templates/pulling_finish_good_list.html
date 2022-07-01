@@ -1,0 +1,95 @@
+{% extends 'base.html' %} 
+{% load admin_urls %}
+{% load render_table from django_tables2 %}
+
+{% block title %} Finish Good List {% endblock title %}
+
+{% block style %} 
+<style>
+  .pulling_fg th{
+      border: 1px solid white; 
+      background-color: rgb(100, 100, 255); 
+      border-radius: 5px;
+    }
+  .pulling_fg th a {
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+      padding-left: 5px;
+      font-size: large;
+    }
+  .pulling_fg td{
+      border: 1px solid white; 
+      background-color: lightblue; 
+      border-radius: 5px;
+      padding-left: 5px;
+      height: 50px;
+    }
+    .pulling_fg tr:first-of-type td{
+        background-color: greenyellow;
+    }
+
+
+</style>
+{% endblock style %}
+
+{% block header %} Finish Good List {% endblock header %}
+
+{% block note %}
+<hr>
+<div class="text-center">
+<a href="{% url 'pulling_label_scan_in' %}"><button class="btn btn-primary col-md-4" autofocus="true">Scan In Label</button></a>
+</div>
+{% endblock note %}
+
+{% block content %}
+    {% if pulling_finish_good_table %} 
+        {% render_table pulling_finish_good_table %}
+    {% endif %}
+{% endblock content %}
+
+{% block footer %}
+
+  {% if is_paginated %}
+    <ul class="pagination align-items-center justify-content-center text-center">
+
+    {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+    {% else %}
+        <li class="page-item disabled"><span class="page-link" aria-hidden="true" aria-disabled="true">First</span></li>
+        <li class="page-item disabled"><span class="page-link" aria-hidden="true" aria-disabled="true">Previous</span></li>
+    {% endif %}
+    
+    {% if page_obj.number|add:'-4' > 1 %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.number|add:'-5' }}">&hellip;</a></li>
+    {% endif %}
+    
+    {% for i in page_obj.paginator.page_range %}
+        {% if page_obj.number == i %}
+            <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
+        {% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
+            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+        {% endif %}
+    {% endfor %}
+    
+    {% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.number|add:'5' }}">&hellip;</a></li>
+    {% endif %}
+    
+    {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-hidden="true">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-hidden="true">Last</a></li>
+    {% else %}
+        <li class="page-item disabled"><span class="page-link" aria-hidden="true" aria-disabled="true">Next</span></li>
+        <li class="page-item disabled"><span class="page-link" aria-hidden="true" aria-disabled="true">Last</span></li>
+    {% endif %}
+    
+    </ul>
+  {% endif %}
+
+{% endblock footer %}
+
+{% block javascript %} 
+
+{% endblock javascript %}

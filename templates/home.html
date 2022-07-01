@@ -1,43 +1,28 @@
 {% extends 'base.html' %} 
 
-{% block header %}Menu{% endblock header %}
 
-{% block content %} 
-{% if user.is_authenticated %}
+{% block header %}
+    {% if user.is_authenticated %}
+        Menu
+    {% else %} 
+        <meta http-equiv="refresh" content="0; {% url 'login' %}" />
+    {% endif %}
+{% endblock header %}
 
-<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); padding: 25px">
-    <div style="text-align: center; margin: 15px;">
-        <p><a href="{% url 'product_input' %}"><i class="fa-solid fa-gear" style="font-size: 200px;"></i></a></p>
-        <p><a href="{% url 'product_input' %}" style="text-decoration: none;">Product Form</a></p>
-    </div>
+{% block content %}
+    {% if user.is_authenticated %}
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); padding: 25px">
+            <div style="text-align: center; margin: 15px;">
+                <p><a href="{% url 'material_home' %}"><i class="fa-solid fa-trash-can-arrow-up" style="font-size: 200px;"></i></a></p>
+                <p><a href="{% url 'material_home' %}" style="text-decoration: none;">Material</a></p>
+            </div>
 
-    <div style="text-align: center; margin: 15px;">
-        <p><a href="{% url 'product' %}"><i class="fa-solid fa-gears" style="font-size: 200px;"></i></a></p>
-        <p><a href="{% url 'product' %}" style="text-decoration: none;">Product List</a></p>
-    </div>
-
-    <div style="text-align: center; margin: 15px;">
-        <p><a href="{% url 'hopper_fill' %}"><i class="fa-solid fa-file-pen" style="font-size: 200px;"></i></a></p>
-        <p><a href="{% url 'hopper_fill' %}" style="text-decoration: none;">Material Hopper Form</a></p>
-    </div>
-
-    <div style="text-align: center; margin: 15px;">
-        <p><a href="{% url 'hopper_fill_data' %}"><i class="fa-solid fa-clipboard-list" style="font-size: 200px;"></i></a></p>
-        <p><a href="{% url 'hopper_fill_data' %}" style="text-decoration: none;">Material Hopper List</i></a></p>
-    </div>
-
-    <div style="text-align: center; margin: 15px;">
-        <p><a href="{% url 'scrap_input' %}"><i class="fa-solid fa-recycle" style="font-size: 200px;"></i></a></p>
-        <p><a href="{% url 'scrap_input' %}" style="text-decoration: none;">Scrap Form</i></a></p>
-    </div>
-
-    <div style="text-align: center; margin: 15px;">
-        <p><a href="{% url 'scrap_list' %}"><i class="fa-regular fa-clipboard" style="font-size: 200px;"></i></a></p>
-        <p><a href="{% url 'scrap_list' %}" style="text-decoration: none;">Scrap List</i></a></p>
-    </div>
-</div>
-{% else %} 
-<meta http-equiv="refresh" content="0; {% url 'login' %}" />
-{% endif %}
-
+            <div style="text-align: center; margin: 15px;">
+                <p><a href="{% url 'pulling_home' %}"><i class="fa-solid fa-cart-flatbed" style="font-size: 200px;"></i></a></p>
+                <p><a href="{% url 'pulling_home' %}" style="text-decoration: none;">Pulling</a></p>
+            </div>
+        </div>
+    {% else %} 
+        <meta http-equiv="refresh" content="0; {% url 'login' %}" />
+    {% endif %}
 {% endblock content %}

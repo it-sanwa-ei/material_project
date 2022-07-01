@@ -27,7 +27,7 @@ SECRET_KEY = 'r=AJ#pEidRKoW1y4Q?ju}$N(PD(~iuaFfzQQ$#~XCo^<$"rstB7}p]zKGH)_g4]'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['sanwa-ei-production-hopper.herokuapp.com', '119.110.67.20', '127.0.0.1', '10.0.1.114' , 'localhost']
+ALLOWED_HOSTS = ['192.168.137.1', '119.110.67.20', '127.0.0.1', '10.0.1.114' , 'localhost', '10.0.1.66',]
 
 
 # Application definition
@@ -48,10 +48,12 @@ INSTALLED_APPS = [
     'fontawesomefree',
     'django_select2',
     'django_redis',
+    'django_tables2',
 
     #custom app
     'material.apps.MaterialConfig',
     'account.apps.AccountConfig',
+    'pulling.apps.PullingConfig',
 
     
 ]
@@ -126,6 +128,10 @@ DATE_FORMAT = [ '%d/%m/%Y',]
 
 TIME_FORMAT = ['%H:%M',]
 
+DATETIME_FORMAT = ['%d-%m-%Y / %H:%M',]
+
+SHORT_DATETIME_FORMAT = ['%d-%m-%Y / %H:%M',]
+
 USE_I18N = True
 
 USE_TZ = True
@@ -150,6 +156,8 @@ LOGOUT_REDIRECT_URL = 'home'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
+DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 

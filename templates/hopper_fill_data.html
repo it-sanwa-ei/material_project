@@ -5,17 +5,19 @@
 {% block header %} Material Hopper List {% endblock header %}
 
 {% block note %}
+<hr>
 <div>
+  <label style="font-size: larger;"> Export Data Table </label>
     <form method="post" action="{% url 'export_hopper_xlsx' %}">
       {% csrf_token %}
       <div class="form-group row" style="padding-bottom: 1em;">
         <div class="form-group col-md-3">
-          <label for="request_date_start">From</label>
-          <input type="date" name="request_date_start" id="request_date_start" class="form-control" placeholder="From (dd/mm/yyyy)">
+          <label for="request_date_start_dt">From</label>
+          <input type="date" name="request_date_start_dt" id="request_date_start_dt" class="form-control" placeholder="From (dd/mm/yyyy)">
         </div>
         <div class="form-group col-md-3">
-          <label for="request_date_end">To</label>
-          <input type="date" name="request_date_end" id="request_date_end" class="form-control" placeholder="To (dd/mm/yyyy)">
+          <label for="request_date_end_dt">To</label>
+          <input type="date" name="request_date_end_dt" id="request_date_end_dt" class="form-control" placeholder="To (dd/mm/yyyy)">
         </div>
         <div class="form-group col-md-3">
           <label></label>
@@ -25,13 +27,20 @@
     </form>
 </div>
 
+<hr>
+
 <div>
+  <label style="font-size: larger;"> Export Usage </label>
     <form method="post" action="{% url 'export_material_usage' %}">
       <div class="form-group row" style="padding-bottom: 1em;">
         {% csrf_token %}
         <div class="form-group col-md-3">
-          <label for="request_date">Select Date</label>
-          <input type="date" name="request_date" id="request_date" class="form-control">
+          <label for="request_date_start_mu">From</label>
+          <input type="date" name="request_date_start_mu" id="request_date_start_mu" class="form-control" placeholder="From (dd/mm/yyyy)">
+        </div>
+        <div class="form-group col-md-3">
+          <label for="request_date_end_mu">To</label>
+          <input type="date" name="request_date_end_mu" id="request_date_end_mu" class="form-control" placeholder="To (dd/mm/yyyy)">
         </div>
         <div class="form-group col-md-3">
           <label></label>

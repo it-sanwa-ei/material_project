@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} Label Form {% endblock title %}
+
+{% block style %} 
+<style>
+  .ts-wrapper .option .text {
+                              display: block;
+                            }
+  .ts-wrapper .option .value {
+                                font-size: 12px;
+                                display: block;
+                                color: #a0a0a0;
+                              }
+</style>
+{% endblock style %}
+
+{% block header %} Label Form {% endblock header %}
+
+{% block content %} 
+<div class="container">
+    {% csrf_token %}
+    {% crispy form %}
+</div>
+<br>
+{% endblock content %}
+
+{% block javascript %} 
+<script>
+    $(document).ready(function()
+    {
+      var customer_select = $("#id_customer").select2({
+        theme: 'bootstrap-5',
+        placeholder: {
+          id: '-1',
+          text: 'Customer',
+        },
+      });
+      customer_select.val('-1').trigger('change')
+
+
+      var shift_select = new TomSelect("#id_shift_group",{
+        create: false,
+        placeholder: 'Search',
+        valueField: 'value',
+        searchField: 'text',
+        maxItems: 1,
+        closeAfterSelect: true,
+        render: {
+		      option: function(data, escape) {
+			      return '<div>' + '<span class="text">' + escape(data.text) + '</span>' + '<span class="value">' + escape(data.value) + '</span>' + '</div>';
+            },
+          item: function(data, escape) {
+			      return '<div title="' + escape(data.value) + '">' + escape(data.text) + '</div>';
+		        },
+		  },
+      });
+      shift_select.clear();
+
+      var line_select = new TomSelect("#id_line",{
+        create: false,
+        placeholder: 'Search',
+        valueField: 'value',
+        searchField: 'text',
+        maxItems: 1,
+        closeAfterSelect: true,
+        render: {
+		      option: function(data, escape) {
+			      return '<div>' + '<span class="text">' + escape(data.text) + '</span>' + '<span class="value">' + escape(data.value) + '</span>' + '</div>';
+            },
+          item: function(data, escape) {
+			      return '<div title="' + escape(data.value) + '">' + escape(data.text) + '</div>';
+		        },
+		  },
+      });
+      line_select.clear();
+
+      var product_select = new TomSelect("#id_pulling_product",{
+        create: false,
+        placeholder: 'Search',
+        maxItems: 1,
+        closeAfterSelect: true,
+      });
+      product_select.clear();
+
+      var tooling_select = new TomSelect("#id_tooling",{
+        create: false,
+        placeholder: 'Search',
+        maxItems: 1,
+        closeAfterSelect: true,
+      });
+      tooling_select.clear();
+    });
+</script>
+
+<script>
+  $(function (){
+    var date_picker = $("#id_date").datepicker({
+        format:'dd/mm/yyyy',
+        date: new Date(),
+      });
+  })
+</script>
+
+<script>
+  $("#id_pulling_product").change(function(){
+            console.log($(this).val());
+            var part_id_customer = $(this).val();
+            $.ajax({
+                url: '{% url "pulling_label_form_ajax" %}',
+                data: {'part_id_customer':part_id_customer},
+                dataType: 'json',
+                success: function(pulling_form_dict){
+                    console.log(pulling_form_dict)
+                    $("#id_customer").val(pulling_form_dict.customer).trigger('change');
+                    $("#id_part_id_sanwa").val(pulling_form_dict.part_id_sanwa).trigger('change');
+                    $("#id_part_name").val(pulling_form_dict.part_name).trigger('change');
+                    $("#id_rack").val(pulling_form_dict.rack).trigger('change');
+                    $("#id_material").val(pulling_form_dict.material).trigger('change');
+                    $("#id_full_bin_quantity").val(pulling_form_dict.full_bin_quantity).trigger('change');
+                    $("#id_bin_quantity").val(pulling_form_dict.bin_quantity).trigger('change');
+                    $("#id_packaging_quantity").val(pulling_form_dict.packaging_quantity).trigger('change');
+                }})
+              })
+                    
+                    
+</script>
+<script>
+  $(".validate").on("click", function () {
+        if (!valid()) {
+            return false;
+        }
+    });
+    
+    function valid() {
+        if ($("#id_shift_group").val()){
+          var shift = 'ok'
+        } else 
+        {
+          alert("Please fill out \"Shift - Group\" field.")
+        }
+        if ($("#id_line").val()){
+          var line = 'ok'
+        } else 
+        {
+          alert("Please fill out \"Line\" field.")
+        }
+        if ($("#id_customer").val() == 'NODATA'){
+          var customer = 'not ok'
+          alert("Please fill out \"Customer\" field.")
+        } else if ($("#id_customer").val() == ''){
+          var customer = 'not ok'
+          alert("Please fill out \"Customer\" field.")
+        }
+         else {var customer = 'ok'}
+        if (shift == 'ok' && line == 'ok' && customer == 'ok') {
+          return true
+        } else {
+          return false
+        }
+    }
+</script>
+{% endblock javascript %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %} 
+
+{% block title %} Delete Scan - Out {% endblock title %}
+
+{% block header %} Delete the following scan data? {% endblock header %}
+{% block content %} 
+
+<div class="container">
+    <form action="", method="post">
+        {% csrf_token %} 
+        <p>Delete the following data</p>
+        <div class="container">
+            <strong><p>Customer : {{pulling_temp_out_delete.customer}}</p></strong>
+            <strong><p>Part ID Customer : {{pulling_temp_out_delete.part_id_customer}}</p></strong>
+            <strong><p>Part Name : {{pulling_temp_out_delete.part_name}}</p></strong>
+            <strong><p>Lot No : {{pulling_temp_out_delete.lot_no}}</p></strong>
+            <strong><p>Quantity : {{pulling_temp_out_delete.quantity}}</p></strong>
+            <strong><p>Date / Time : {{pulling_temp_out_delete.date_time}}</p></strong>
+        </div>
+        <p>Confirm ?</p>
+        <input type="submit" value="Yes" class="btn btn-primary">
+        <input type="button" value="No" class="btn btn-danger" onclick="history.back()">
+    </form>
+</div>
+<br>
+
+{% endblock content %}

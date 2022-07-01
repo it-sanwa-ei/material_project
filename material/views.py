@@ -34,8 +34,8 @@ register = template.Library()
 from .models import Product, HopperFillData, Scrap
 from .forms import ProductForm, HopperForm, ScrapForm
 
-class HomeView(TemplateView):
-    template_name = 'home.html'
+class MaterialHomeView(TemplateView):
+    template_name = 'material_home.html'
 
 class ProductListView(ListView):
     model = Product
@@ -244,14 +244,14 @@ class ScrapDeleteView(DeleteView):
 
 def export_hopper_xlsx(request):
     if request.method == 'POST':
-        if request.POST.get('request_date_start'):
-            request_date_start = request.POST.get('request_date_start')
+        if request.POST.get('request_date_start_dt'):
+            request_date_start = request.POST.get('request_date_start_dt')
             request_date_start = datetime.strptime(request_date_start, '%Y-%m-%d')
         else:
             request_date_start = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
 
-        if request.POST.get('request_date_end'):
-            request_date_end = request.POST.get('request_date_end')
+        if request.POST.get('request_date_end_dt'):
+            request_date_end = request.POST.get('request_date_end_dt')
             request_date_end = datetime.strptime(request_date_end, '%Y-%m-%d')
         else:
             request_date_end = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
@@ -328,7 +328,7 @@ def export_hopper_xlsx(request):
         output.seek(0)
 
         response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename = Material Hopper ' + str(request_date_start.strftime('%d-%m-%Y')) + '_-_' +  str(request_date_end.strftime('%d-%m-%Y')) + '.xlsx'
+        response['Content-Disposition'] = 'attachment; filename = Material Hopper ' + str(request_date_start.strftime('%d-%m-%Y')) + ' sd ' +  str(request_date_end.strftime('%d-%m-%Y')) + '.xlsx'
 
         
     else:
@@ -379,86 +379,61 @@ def get_material_used(queryset):
 
 def export_material_usage(request):
     if request.method == 'POST':
-        request_date = request.POST.get('request_date')
-        if request_date:
-            request_date = datetime.strptime(request_date, '%Y-%m-%d')
+        if request.POST.get('request_date_start_mu'):
+            request_date_start = request.POST.get('request_date_start_mu')
+            request_date_start = datetime.strptime(request_date_start, '%Y-%m-%d')
         else:
-            request_date = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+            request_date_start = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+
+        if request.POST.get('request_date_end_mu'):
+            request_date_end = request.POST.get('request_date_end_mu')
+            request_date_end = datetime.strptime(request_date_end, '%Y-%m-%d')
+        else:
+            request_date_end = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
     else:
         pass
 
     output = io.BytesIO()
 
-    start_week = request_date.date() - timedelta(days=7)
-    start_month = request_date.date() - timedelta(days=30)
+    start_date = request_date_start.date()
+    end_date = request_date_end.date()
     
     wb = xlsxwriter.Workbook(output, {'in_memory':True})
-    ws_1 = wb.add_worksheet(name = ('Report (' + str(request_date.strftime('%d-%m-%Y'))+')'))
-    ws_2 = wb.add_worksheet(name = ('Report (' + str(start_week.strftime('%d-%m-%Y')) + 'sd' + str(request_date.strftime('%d-%m-%Y'))+')'))
-    ws_3 = wb.add_worksheet(name = ('Report (' + str(start_month.strftime('%d-%m-%Y')) + 'sd' + str(request_date.strftime('%d-%m-%Y'))+')'))
+    if start_date == end_date:
+        ws = wb.add_worksheet(name = ('Report (' + str(start_date.strftime('%d-%m-%Y'))+')'))
+    else:
+        ws = wb.add_worksheet(name = ('Report (' + str(start_date.strftime('%d-%m-%Y')) + 'sd' + str(end_date.strftime('%d-%m-%Y'))+')'))
 
     bold = wb.add_format({'bold':True})
     date_format = wb.add_format({'num_format':'d mmm yyyy'})
     
-    filtered_query1 = HopperFillData.objects.filter(tanggal=request_date.date())
-    filtered_query2 = HopperFillData.objects.filter(tanggal__gte= (request_date.date() - timedelta(days=7)),tanggal__lte=request_date.date())
-    filtered_query3 = HopperFillData.objects.filter(tanggal__gte= (request_date.date() - timedelta(days=30)),tanggal__lte=request_date.date())
+    filtered_query = HopperFillData.objects.filter(tanggal__gte= start_date,tanggal__lte=end_date)
 
-    daily_material_usage = get_material_used(queryset=filtered_query1)
-    weekly_material_usage = get_material_used(queryset=filtered_query2)
-    monthly_material_usage = get_material_used(queryset=filtered_query3)
+    daily_material_usage = get_material_used(queryset=filtered_query)
 
     #untuk ws_1 (daily)
     x, y = 1, 0
-    ws_1.write(0, 0, 'Material', bold)
-    ws_1.write(0, 1, 'Virgin Usage (kg)', bold)
-    ws_1.write(0, 2, 'Regrind Usage (kg)', bold)
-    ws_1.write(0, 3, 'Total Usage (kg)', bold)
+    ws.write(0, 0, 'Material', bold)
+    ws.write(0, 1, 'Virgin Usage (kg)', bold)
+    ws.write(0, 2, 'Regrind Usage (kg)', bold)
+    ws.write(0, 3, 'Total Usage (kg)', bold)
 
     for dl in daily_material_usage:
-        ws_1.write_string(x, y, dl[0])
-        ws_1.write_number(x, y+1, dl[1])
-        ws_1.write_number(x, y+2, dl[2])
-        ws_1.write_number(x, y+3, dl[3])
+        ws.write_string(x, y, dl[0])
+        ws.write_number(x, y+1, dl[1])
+        ws.write_number(x, y+2, dl[2])
+        ws.write_number(x, y+3, dl[3])
         x += 1
-
-
-    #untuk ws_2 (weekly)
-    x, y = 1, 0
-    ws_2.write(0, 0, 'Material', bold)
-    ws_2.write(0, 1, 'Virgin Usage (kg)', bold)
-    ws_2.write(0, 2, 'Regrind Usage (kg)', bold)
-    ws_2.write(0, 3, 'Total Usage (kg)', bold)
-
-    for dl in weekly_material_usage:
-        ws_2.write_string(x, y, dl[0])
-        ws_2.write_number(x, y+1, dl[1])
-        ws_2.write_number(x, y+2, dl[2])
-        ws_2.write_number(x, y+3, dl[3])
-        x += 1
-
-
-    #untuk ws_3 (monthly)
-    x, y = 1, 0
-    ws_3.write(0, 0, 'Material', bold)
-    ws_3.write(0, 1, 'Virgin Usage (kg)', bold)
-    ws_3.write(0, 2, 'Regrind Usage (kg)', bold)
-    ws_3.write(0, 3, 'Total Usage (kg)', bold)
-
-    for dl in monthly_material_usage:
-        ws_3.write_string(x, y, dl[0])
-        ws_3.write_number(x, y+1, dl[1])
-        ws_3.write_number(x, y+2, dl[2])
-        ws_3.write_number(x, y+3, dl[3])
-        x += 1
-
 
     wb.close()
 
     output.seek(0)
 
     response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename = Material Usage Report ' + str(request_date.strftime('%d-%m-%Y')) + '.xlsx'
+    if start_date == end_date:
+        response['Content-Disposition'] = 'attachment; filename = Material Usage Report ' + str(start_date.strftime('%d-%m-%Y')) + '.xlsx'
+    else:
+        response['Content-Disposition'] = 'attachment; filename = Material Usage Report ' + str(start_date.strftime('%d-%m-%Y')) + ' sd ' + str(end_date.strftime('%d-%m-%Y')) + '.xlsx'
 
     return response
 

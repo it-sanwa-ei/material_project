@@ -1,0 +1,25 @@
+{% extends 'base.html' %} 
+
+{% block title %} Delete Customer {% endblock title %}
+
+{% block header %} Delete Customer {% endblock header %}
+{% block content %} 
+
+<div class="container">
+    <form action="", method="post">
+        {% csrf_token %} 
+        <p>Delete the following customer data</p>
+        <div class="container">
+            <strong><p>Code : {{pulling_customer_delete.code}}</p></strong>
+            <strong><p>Name : {{pulling_customer_delete.name}}</p></strong>
+            <strong><p>Address : {{pulling_customer_delete.address}}</p></strong>
+            <strong><p>City : {{pulling_customer_delete.city}}</p></strong>
+        </div>
+        <p>Confirm ?</p>
+        <input type="submit" value="Yes" class="btn btn-primary" style="width: 5em;"/>
+        <input type="button" value="No" class="btn btn-secondary" onclick="history.back()" style="width: 5em;">
+    </form>
+</div>
+<br>
+
+{% endblock content %}

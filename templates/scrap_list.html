@@ -5,6 +5,7 @@
 {% block header %} Scrap List {% endblock header %}
 
 {% block note %}
+<hr>
 <div>
     <form method="post" action="{% url 'export_scrap_xlsx' %}">
       {% csrf_token %}
@@ -31,7 +32,7 @@
 <div>
     <table style="border: 1px solid white; width: 100%;">
         <tr style="border: 1px solid white;">
-            <th style="width: 2%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">#</th>
+            <th style="width: 2%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px; text-align: center;">#</th>
             <th style="width: 10%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">Tanggal</th>
             <th style="width: 10%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">Shift</th>
             <th style="width: 15%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">Purging (kg)</th>
@@ -39,7 +40,7 @@
             <th style="width: 15%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">Runner (kg)</th>
             <th style="width: 15%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">Total (kg)</th>
             <th style="width: 10%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px;">PIC</th>
-            <th style="width: 6%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;" colspan="2"></th>
+            <th style="width: 6%; border: 1px solid white; background-color: rgb(100, 100, 255); color: white; border-radius: 5px; text-align: center;" colspan="2"></th>
         </tr>
         {% for scrap in scrap_list %} 
         <tr style="border: 1px solid white;">
@@ -51,8 +52,8 @@
             <td style="width: 15%; border: 1px solid white; background-color: lightblue; border-radius: 5px;">{{scrap.jumlah_runner}}</td>
             <td style="width: 15%; border: 1px solid white; background-color: lightblue; border-radius: 5px;">{{scrap.jumlah_purge|add:scrap.jumlah_ng|add:scrap.jumlah_runner}}</td>
             <td style="width: 10%; border: 1px solid white; background-color: lightblue; border-radius: 5px;">{{scrap.pic}}</td>
-            <td style="width: 3%;  border: 1px solid white; border-right: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'scrap_edit' scrap.pk %}"><i class="fa-solid fa-pen"></i></a></td>
-            <td style="width: 3%;  border: 1px solid white; border-left: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'scrap_delete' scrap.pk %}"><i class="fa-solid fa-trash-can"></i></a></td>
+            <td style="width: 3%;  border: 1px solid white; border-right: 0px; background-color: lightblue; text-align: center; border-top-left-radius: 5px;border-bottom-left-radius: 5px;"><a href="{% url 'scrap_edit' scrap.pk %}"><i class="fa-solid fa-pen"></i></a></td>
+            <td style="width: 3%;  border: 1px solid white; border-left: 0px; background-color: lightblue; text-align: center; border-top-right-radius: 5px;border-bottom-right-radius: 5px"><a href="{% url 'scrap_delete' scrap.pk %}"><i class="fa-solid fa-trash-can"></i></a></td>
         </tr>
         {% endfor %}
     </table>

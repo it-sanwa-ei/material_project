@@ -15,18 +15,27 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
     <!--Select2 Bootstrap5 CSS-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <!--TomSelect Bootstrap5 CSS-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.3/css/tom-select.bootstrap5.min.css" integrity="sha512-gQrR4Sl/H4PFOWV1U+D17SlQ41q2MKftcHMwDhOuy2kXWYmgZcQNEauBn4DORAZ0cI11/0FZ58MfKpJGqHDGnQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!--FontAwesome CSS-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!--FengYuanChen Datepicker CSS-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.css" integrity="sha512-YdYyWQf8AS4WSB0WWdc3FbQ3Ypdm0QCWD2k4hgfqbQbRCJBEgX0iAegkl2S1Evma5ImaVXLBeUkIlP6hQ1eYKQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!--jQuery--> 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> 
     <!--Bootstrap JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <!--Select2 JS--> 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.full.min.js"></script>
+    <!--TomSelect JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.3/js/tom-select.complete.js" integrity="sha512-4l7yL3u08v53VXCPg2u/LWu2Dc0Z9fBLyzqUOZc6vN74zPhdS6EAJ3zOxdP+NgAblGq6Pz8ckvkzB3joM1Kvbw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!--FontAwesome JS-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js" integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-  
+    <!--FengYuanChen Datepicker JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.js" integrity="sha512-RCgrAvvoLpP7KVgTkTctrUdv7C6t7Un3p1iaoPr1++3pybCyCsCZZN7QEHMZTcJTmcJ7jzexTO+eFpHk4OCFAg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    {% block style %} {% endblock style %}
+    
+    {% block redirect %} {% endblock redirect %}
   </head>
   <body style="display: grid; grid-template-rows: auto 1fr auto; min-height: 10vh;">
     <div id="production_navbar">
@@ -66,15 +75,87 @@
           <div class="col-auto px-0">
               <div id="sidebar" class="collapse collapse-horizontal border-end-0">
                   <div id="sidebar-nav" class="list-group border-0 rounded-0 text-sm-start min-vh-100">
-                      <a href="{% url 'product_input' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-gear"></i> <span>Product Form</span> </a>
-                      <a href="{% url 'product' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-gears"></i> <span>Product List</span></a>
-                      <a href="{% url 'hopper_fill' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-file-pen"></i> <span>Material Hopper Form</span></a>
-                      <a href="{% url 'hopper_fill_data' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-clipboard-list"></i> <span>Material Hopper List</span></a>
-                      <a href="{% url 'scrap_input' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-recycle"></i> <span>Scrap Form</span></a>
-                      <a href="{% url 'scrap_list' %}" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-regular fa-clipboard"></i> <span>Scrap List</span></a>
-                      <a href="#" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-rotate"></i> <span>Mixing</span></a>
-                      <a href="#" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-solid fa-cart-flatbed"></i> <span>Pulling</span></a>
-                      <a href="#" class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar"><i class="fa-regular fa-square-plus"></i> <span>Option</span></a>
+                      <div class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar" id="materialmenu">
+                        <a href="#materialsubmenu" data-bs-toggle="collapse" class="text-decoration-none" aria-hidden="true"><i class="fa-solid fa-trash-can-arrow-up"></i> Material &blacktriangledown;</a>
+                        <ul  class="collapse list-unstyled" id="materialsubmenu" data-bs-parent="#sidebar"><a class="text-decoration-none" href="#"></a></li>
+                          {% if user.is_staff %}
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'product_input' %}"><i class="fa-solid fa-gear col-1"></i><span class="col-2">Product Form</span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'product' %}"><i class="fa-solid fa-gears col-1"></i><span class="col-2">Product List</span></a></li>
+                          {% endif %}
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'hopper_fill' %}"><i class="fa-solid fa-file-pen col-1"></i><span class="col-2">Material Hopper Form</span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'hopper_fill_data' %}"><i class="fa-solid fa-clipboard-list col-1"></i><span class="col-2">Material Hopper List</span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'scrap_input' %}"><i class="fa-solid fa-recycle col-1"></i><span class="col-2">Scrap Form</span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'scrap_list' %}"><i class="fa-regular fa-clipboard col-1"></i><span class="col-2">Scrap List</span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"><i class="fa-solid fa-rotate col-1"></i><span class="col-2">Mixing</span></a></li>
+                        </ul>
+                      </div>
+                      <div class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar" id="maspromenu">
+                        <a href="#masprosubmenu" data-bs-toggle="collapse" class="text-decoration-none" aria-hidden="true"><i class="fa-solid fa-industry"></i> Mass Production &blacktriangledown;</a>
+                        <ul  class="collapse list-unstyled" id="masprosubmenu" data-bs-parent="#sidebar"><a class="text-decoration-none" href="#"></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                        </ul>
+                      </div>
+                      <div class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar" id="pullingmenu">
+                        <a href="#pullingsubmenu" data-bs-toggle="collapse" class="text-decoration-none"><i class="fa-solid fa-cart-flatbed"></i> Pulling &blacktriangledown;</a>
+                        <ul  class="collapse list-unstyled" id="pullingsubmenu" data-bs-parent="#sidebar"><a class="text-decoration-none" href="#"></a></li>
+                          {% if user.is_staff %}
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'pulling_product_input' %}"><i class="fa-solid fa-gear col-1"></i>  <span class="col-2"> New Product </span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'pulling_product_list' %}"><i class="fa-solid fa-gears col-1"></i> <span class="col-2"> Product List </span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'pulling_customer_input' %}"><i class="fa-solid fa-user-pen col-1"></i> <span class="col-2"> New Customer </span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'pulling_customer_list' %}"><i class="fa-solid fa-users col-1"></i> <span class="col-2"> Customer List </span></a></li>
+                          {% endif %}
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'pulling_label_input' %}"><i class="fa-solid fa-qrcode col-1"></i>  <span class="col-2"> Label Form </span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'temp_scan_in' %}"><span class="col-1"><img src="https://i.ibb.co/w42nwD7/scan-in.png" alt="scan-in" height="16px"></span> <span class="col-2"> Scan In </span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'scan_in_list' %}"><i class="fa-solid fa-clipboard col-1"></i><span class="col-2"> Scan In List </span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'finish_good_stock' %}"><i class="fa-solid fa-boxes-stacked col-1"></i>  <span class="col-2"> Finished Goods Stock </span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'temp_scan_out' %}"><span class="col-1"><img src="https://i.ibb.co/dMHbwB9/scan-out.png" alt="scan-out" height="16px"><span class="col-2"> Scan Out </span></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'scan_out_list' %}"><i class="fa-regular fa-clipboard col-1"></i><span class="col-2"> Scan Out List </span></a></li>
+                        </ul>
+                      </div>
+                      <div class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar" id="qcmenu">
+                        <a href="#qcsubmenu" data-bs-toggle="collapse" class="text-decoration-none" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i> Quality Control &blacktriangledown;</a>
+                        <ul  class="collapse list-unstyled" id="qcsubmenu" data-bs-parent="#sidebar"><a class="text-decoration-none" href="#"></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                        </ul>
+                      </div>
+                      <div class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar" id="moldrepairmenu">
+                        <a href="#moldrepairsubmenu" data-bs-toggle="collapse" class="text-decoration-none" aria-hidden="true"><i class="fa-solid fa-screwdriver-wrench"></i> Mold Repair &blacktriangledown;</a>
+                        <ul  class="collapse list-unstyled" id="moldrepairsubmenu" data-bs-parent="#sidebar"><a class="text-decoration-none" href="#"></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                        </ul>
+                      </div>
+                      <div class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar" id="menu6">
+                        <a href="#submenu6" data-bs-toggle="collapse" class="text-decoration-none" aria-hidden="true"><i class="fa-regular fa-square-plus"></i> Option &blacktriangledown;</a>
+                        <ul  class="collapse list-unstyled" id="submenu6" data-bs-parent="#sidebar"><a class="text-decoration-none" href="#"></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                        </ul>
+                      </div>
+                      <div class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar" id="menu7">
+                        <a href="#submenu7" data-bs-toggle="collapse" class="text-decoration-none" aria-hidden="true"><i class="fa-regular fa-square-plus"></i> Option &blacktriangledown;</a>
+                        <ul  class="collapse list-unstyled" id="submenu7" data-bs-parent="#sidebar"><a class="text-decoration-none" href="#"></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                        </ul>
+                      </div>
                   </div>
               </div>
           </div>
