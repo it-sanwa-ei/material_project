@@ -1,3 +1,5 @@
+import os, platform
+
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy, reverse
 from django.views import View
@@ -333,7 +335,15 @@ def draw_pulling_label(canvas, start_x, start_y, customer, part_name, pn_cust, p
     canvas.drawString(5, -163, 'MATERIAL :' )
     canvas.drawString(127, -140, 'QTY :' )
     
-    pdfmetrics.registerFont((TTFont('ArialBd','ArialBd.ttf')))
+    if platform.system() == 'Windows':
+        pdfmetrics.registerFont((TTFont('ArialBd','ArialBd.ttf')))
+    elif platform.system() == 'Linux':
+        pdfmetrics.registerFont((TTFont('ArialBd','Arial_Bold.ttf')))
+    else:
+        try:
+            pdfmetrics.registerFont((TTFont('ArialBd','Arial_Bold.ttf')))
+        except:
+            pdfmetrics.registerFont((TTFont('ArialBd','Arial_Black.ttf')))
     if len(customer) <= 25:
         canvas.setFont('ArialBd', 14)
         canvas.drawCentredString(125, -20, customer)               #tulisan customer
@@ -682,6 +692,94 @@ class ScanInListView(SingleTableView):
         else:
             return ScanInModel.objects.all().order_by('-date_time')
 
+def export_scan_in_xlsx(request):
+    if request.method == 'POST':
+        if request.POST.get('request_date_start'):
+            request_date_start = request.POST.get('request_date_start')
+            request_date_start = request_date_start
+        else:
+            request_date_start = timezone.now()
+
+        if request.POST.get('request_date_end'):
+            request_date_end = request.POST.get('request_date_end')
+            request_date_end = request_date_end
+        else:
+            request_date_end = timezone.now()
+    else:
+        pass
+
+    output = io.BytesIO()
+    
+    wb = xlsxwriter.Workbook(output, {'in_memory':True})
+    ws = wb.add_worksheet(name = 'Scan In')
+
+    row_num = 0
+
+    bold = wb.add_format({'bold':True})
+    date_format = wb.add_format({'num_format':'d mmm yyyy'})
+    time_format = wb.add_format({'num_format':'hh:mm'})
+    decimal_format = wb.add_format({'num_format':'0.00'})
+    date_time_format = wb.add_format({'num_format':'dd-mm-yyyy / hh:mm'})
+
+    columns = [ 'No Mc', 'Part ID Customer', 'Part Name', 'Customer', 'Lot No.', 'Quantity', 'Address', 'Date / Time']
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], bold)
+
+    filtered_query = ScanInModel.objects.filter(date_time__gte=request_date_start, date_time__lte=request_date_end)
+
+    if filtered_query:
+        line = filtered_query.values_list('line', flat=True).order_by('date_time')
+        part_id_customer = filtered_query.values_list('part_id_customer', flat=True).order_by('date_time')
+        part_name = filtered_query.values_list('part_name', flat=True).order_by('date_time')
+        customer = filtered_query.values_list('customer', flat=True).order_by('date_time')
+        lot_no = filtered_query.values_list('lot_no', flat=True).order_by('date_time')
+        quantity = filtered_query.values_list('quantity', flat=True).order_by('date_time')
+        rack = filtered_query.values_list('rack', flat=True).order_by('date_time')
+        date_time = filtered_query.values_list('date_time', flat=True).order_by('date_time')
+
+        q_list = [line, part_id_customer, part_name, customer, lot_no, quantity, rack, date_time]
+        
+        for q in range(0, len(q_list)):
+            r = 1
+            for d in q_list[q]:
+                if isinstance(d, str):
+                    ws.write_string(r, q, d)
+                elif isinstance(d, int):
+                    ws.write_number(r, q, d)
+                elif isinstance(d, float):
+                    ws.write_number(r, q, d, decimal_format)
+                elif isinstance(d, decimal.Decimal):
+                    ws.write_number(r, q, d, decimal_format)
+                elif isinstance(d, datetime):
+                    naive_d = d.replace(tzinfo=None) + timedelta(hours=7)
+                    ws.write_datetime(r, q, naive_d, date_time_format)
+                else:
+                    pass
+                r += 1
+
+        wb.close()
+
+        output.seek(0)
+
+        response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        if request_date_start != request_date_end:
+            response['Content-Disposition'] = 'attachment; filename = Scan In ' + str(request_date_start) + ' ~ ' +  str(request_date_end) + '.xlsx'
+        else:
+            response['Content-Disposition'] = 'attachment; filename = Scan In ' + str(request_date_start) + '.xlsx'
+    else:
+        wb.close()
+        output.seek(0)
+
+        url = reverse_lazy('scan_in_list')
+        if request_date_start != request_date_end:
+            warning = '0 Entry between ' + str(request_date_start) + ' and ' + str(request_date_end)
+        else:
+            warning = '0 Entry with date / time = ' + str(request_date_start)
+        response = HttpResponse("<script> alert( '%s' ); window.location='%s' </script>" %(warning, url))
+
+    return response
+
 
 ############################ Pulling Out ##########################################
 
@@ -855,6 +953,93 @@ class ScanOutListView(SingleTableView):
         else:
             return ScanOutModel.objects.all().order_by('-date_time')
 
+def export_scan_out_xlsx(request):
+    if request.method == 'POST':
+        if request.POST.get('request_date_start'):
+            request_date_start = request.POST.get('request_date_start')
+            request_date_start = request_date_start
+        else:
+            request_date_start = timezone.now()
+
+        if request.POST.get('request_date_end'):
+            request_date_end = request.POST.get('request_date_end')
+            request_date_end = request_date_end
+        else:
+            request_date_end = timezone.now()
+    else:
+        pass
+
+    output = io.BytesIO()
+    
+    wb = xlsxwriter.Workbook(output, {'in_memory':True})
+    ws = wb.add_worksheet(name = 'Scan Out')
+
+    row_num = 0
+
+    bold = wb.add_format({'bold':True})
+    date_format = wb.add_format({'num_format':'d mmm yyyy'})
+    time_format = wb.add_format({'num_format':'hh:mm'})
+    decimal_format = wb.add_format({'num_format':'0.00'})
+    date_time_format = wb.add_format({'num_format':'dd-mm-yyyy / hh:mm'})
+
+    columns = [ 'Customer', 'Part ID Customer', 'Part Name', 'Lot No.', 'Quantity', 'SPQ', 'Address', 'Date / Time']
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], bold)
+
+    filtered_query = ScanOutModel.objects.filter(date_time__gte=request_date_start, date_time__lte=request_date_end)
+
+    if filtered_query:
+        customer = filtered_query.values_list('customer', flat=True).order_by('date_time')
+        part_id_customer = filtered_query.values_list('part_id_customer', flat=True).order_by('date_time')
+        part_name = filtered_query.values_list('part_name', flat=True).order_by('date_time')
+        lot_no = filtered_query.values_list('lot_no', flat=True).order_by('date_time')
+        quantity = filtered_query.values_list('quantity', flat=True).order_by('date_time')
+        spq = filtered_query.values_list('spq', flat=True).order_by('date_time')
+        rack = filtered_query.values_list('rack', flat=True).order_by('date_time')
+        date_time = filtered_query.values_list('date_time', flat=True).order_by('date_time')
+
+        q_list = [customer, part_id_customer, part_name, lot_no, quantity, spq, rack, date_time]
+        
+        for q in range(0, len(q_list)):
+            r = 1
+            for d in q_list[q]:
+                if isinstance(d, str):
+                    ws.write_string(r, q, d)
+                elif isinstance(d, int):
+                    ws.write_number(r, q, d)
+                elif isinstance(d, float):
+                    ws.write_number(r, q, d, decimal_format)
+                elif isinstance(d, decimal.Decimal):
+                    ws.write_number(r, q, d, decimal_format)
+                elif isinstance(d, datetime):
+                    naive_d = d.replace(tzinfo=None) + timedelta(hours=7)
+                    ws.write_datetime(r, q, naive_d, date_time_format)
+                else:
+                    pass
+                r += 1
+
+        wb.close()
+
+        output.seek(0)
+
+        response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        if request_date_start != request_date_end:
+            response['Content-Disposition'] = 'attachment; filename = Scan Out ' + str(request_date_start) + ' ~ ' +  str(request_date_end) + '.xlsx'
+        else:
+            response['Content-Disposition'] = 'attachment; filename = Scan Out ' + str(request_date_start) + '.xlsx'
+    else:
+        wb.close()
+        output.seek(0)
+
+        url = reverse_lazy('scan_out_list')
+        if request_date_start != request_date_end:
+            warning = '0 Entry between ' + str(request_date_start) + ' and ' + str(request_date_end)
+        else:
+            warning = '0 Entry with date / time = ' + str(request_date_start)
+        response = HttpResponse("<script> alert( '%s' ); window.location='%s' </script>" %(warning, url))
+
+    return response
 
 ########################################### Finish Good Sum Stock ##########################################
 
@@ -862,14 +1047,121 @@ class FinishGoodStockListView(SingleTableView):
     model = FinishGoodStock
     template_name = 'pulling_finish_good_stock.html'
     context_table_name = 'finish_good_stock_table'
-    table_class = FinishGoodStockTable
+    table_class = FinishGoodStockTable  
 
+    def get_context_data(self, **kwargs):
+        context = super(FinishGoodStockListView, self).get_context_data(**kwargs)
+        context['warehouse_quantity'] = FinishGoodStock.objects.all().aggregate(warehouse_quantity = Sum('total_quantity'))['warehouse_quantity']
+        return context
+        
     def get_queryset(self):
         query = self.request.GET.get('q')
         if query:
-            return FinishGoodStock.objects.filter( Q(part_id_customer__icontains=query) | Q(customer__icontains=query) | Q(material__icontains=query))
+            return FinishGoodStock.objects.filter( Q(part_id_customer__icontains=query) | Q(customer__icontains=query) | Q(part_name__icontains=query) | Q(material__icontains=query))
         else:
             return FinishGoodStock.objects.all().order_by('customer', 'part_id_customer')
+
+def export_fg_xlsx(request):
+    if request.method == 'POST':
+        if request.POST.get('request_date'):
+            request_date = request.POST.get('request_date')
+            year = int(request_date[0:4])
+            month = int(request_date[5:7])
+            day = int(request_date[8:10])
+            request_date = datetime(year=year, month=month, day=day, hour=23,minute=59, second=59)
+        else:
+            request_date = datetime.now(tz=tz)
+    else:
+        pass
+
+    output = io.BytesIO()
+    
+    wb = xlsxwriter.Workbook(output, {'in_memory':True})
+    ws = wb.add_worksheet(name = 'Finish Good List')
+
+    row_num = 0
+
+    bold = wb.add_format({'bold':True})
+    date_format = wb.add_format({'num_format':'d mmm yyyy'})
+    time_format = wb.add_format({'num_format':'hh:mm'})
+    decimal_format = wb.add_format({'num_format':'0.00'})
+    date_time_format = wb.add_format({'num_format':'dd-mm-yyyy / hh:mm'})
+
+    columns = [ 'Customer', 'Part ID Customer', 'Part Name', 'Material', 'Total Quantity']
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], bold)
+
+    filtered_query = PullingFinishGoodItem.objects.filter(date_time__gte=datetime(year=2022, month=1, day=1) ,date_time__lte=request_date)
+
+    fgs_list = []
+    part_id_customer_list = []
+    part_id_cust_q = filtered_query.values_list('part_id_customer', flat=True)
+    for p in list(part_id_cust_q):
+        if p not in part_id_customer_list:
+            part_id_customer_list.append(p)
+    if part_id_customer_list:        
+        for part in part_id_customer_list:
+            fgs = FinishGoodStock()
+            fgs.part_id_customer = part
+            fgs.part_name = filtered_query.filter(part_id_customer=part).values('part_name').last()['part_name']
+            fgs.customer = filtered_query.filter(part_id_customer=part).values('customer').last()['customer']
+            fgs.material = filtered_query.filter(part_id_customer=part).values('material').last()['material']
+            fgs.total_quantity = int(filtered_query.filter(part_id_customer=part).aggregate(Sum('quantity'))['quantity__sum'])
+            fgs_list.append(fgs)
+
+        print(fgs_list)
+
+        customer = []
+        part_id_customer = []
+        part_name = []
+        material = []
+        total_quantity = []
+        for fg in fgs_list:
+            customer.append(fg.customer)
+            part_id_customer.append(fg.part_id_customer)
+            part_name.append(fg.part_name)
+            material.append(fg.material)
+            total_quantity.append(fg.total_quantity)
+
+        q_list = [customer, part_id_customer, part_name, material, total_quantity]
+            
+        for q in range(0, len(q_list)):
+            r = 1
+            for d in q_list[q]:
+                if isinstance(d, str):
+                    ws.write_string(r, q, d)
+                elif isinstance(d, int):
+                    ws.write_number(r, q, d)
+                elif isinstance(d, float):
+                    ws.write_number(r, q, d, decimal_format)
+                elif isinstance(d, decimal.Decimal):
+                    ws.write_number(r, q, d, decimal_format)
+                elif isinstance(d, datetime):
+                    naive_d = d.replace(tzinfo=None) + timedelta(hours=7)
+                    ws.write_datetime(r, q, naive_d, date_time_format)
+                else:
+                    pass
+                r += 1
+
+        wb.close()
+
+        output.seek(0)
+
+        response = HttpResponse(output.read(), content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        
+        response['Content-Disposition'] = 'attachment; filename = Finished Goods - ' + str(request_date.date().strftime('%d-%m-%Y')) + '.xlsx'
+        
+        return response
+
+    else:
+        wb.close()
+        output.seek(0)
+
+        url = reverse_lazy('finish_good_stock')
+        warning = '0 Entry with date = ' + str(request_date.date().strftime('%d-%m-%Y'))
+        response = HttpResponse("<script> alert( '%s' ); window.location='%s' </script>" %(warning, url))
+
 
 
 

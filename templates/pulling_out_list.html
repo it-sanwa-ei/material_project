@@ -32,6 +32,27 @@
 {% block header %} Scan Out List {% endblock header %}
 
 {% block note %}
+<hr>
+<div>
+    <form method="post" action="{% url 'export_scan_out_xlsx' %}">
+      {% csrf_token %}
+      <div class="form-group row" style="padding-bottom: 1em;">
+        <div class="form-group col-md-3">
+          <label for="request_date_start">From</label>
+          <input type="datetime-local" name="request_date_start" id="request_date_start" class="form-control">
+        </div>
+        <div class="form-group col-md-3">
+          <label for="request_date_end">To</label>
+          <input type="datetime-local" name="request_date_end" id="request_date_end" class="form-control">
+        </div>
+        <div class="form-group col-md-3">
+          <label></label>
+          <input type="submit" value="Export Scan In" class="btn btn-success form-control">
+        </div>
+      </div>
+    </form>
+</div>
+<hr>
 <div class="mb-4">
   <form action="{% url 'scan_out_list' %}" method="get" style="text-align:left; width: 25em;">
     {% csrf_token %}

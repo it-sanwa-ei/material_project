@@ -31,16 +31,40 @@
 {% block header %} Finished Goods Stock {% endblock header %}
 
 {% block note %}
+<hr>
+<div>
+    <form method="post" action="{% url 'export_fg_xlsx' %}">
+      {% csrf_token %}
+      <div class="form-group row pb-1">
+        <div class="form-group col-md-3">
+          <label for="request_date">Select Date</label>
+          <input type="date" name="request_date" id="request_date" class="form-control">
+        </div>
+        <div class="form-group col-md-3">
+          <label></label>
+          <input type="submit" value="Export Finished Goods" class="btn btn-success form-control">
+        </div>
+      </div>
+    </form>
+</div>
 {% endblock note %}
 
 {% block content %}
 <div class="mb-4">
     <div class="row">
-        <div class="form-group name1 col-md-16 text-start">
-            <form class="form-inline mt-2 mt-md-0" action="{% url 'finish_good_stock' %}" method="get" style="text-align:left; width: 25em;">
-                <label>Search</label>
-                <input name="q" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-            </form>
+        <div class="col-6">
+            <div class="form-group text-start">
+                <form class="form-inline" action="{% url 'finish_good_stock' %}" method="get">
+                    <label>Search</label>
+                    <input name="q" class="form-control" type="text" placeholder="Search" aria-label="Search">
+                </form>
+            </div>
+        </div>
+        <div class="col-6">    
+            <div class="form-group text-end">
+                <label>Total Quantity Finished Goods on Warehouse</label>
+                <input class="form-control text-end" type="text" value="{{warehouse_quantity}} pcs" readonly>
+            </div>
         </div>
     </div>
 </div>

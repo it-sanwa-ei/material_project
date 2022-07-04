@@ -11,6 +11,7 @@ from .views import TempScanOutListView, TempScanOutUpdateView, TempScanOutDelete
 from .views import PullingFinishGoodItemListView, FinishGoodStockListView
 from .views import import_pulling_customer_xlsx, import_pulling_product_xlsx
 from .views import pulling_label_form_ajax, pulling_label_pdf, pulling_label_in_decode, pulling_label_out_decode
+from .views import export_scan_in_xlsx, export_scan_out_xlsx, export_fg_xlsx
 from .views import scan_in_warehouse_db, scan_out_warehouse_db
 
 urlpatterns = [
@@ -34,12 +35,15 @@ urlpatterns = [
     path('scan-label/in/new/<int:pk>/edit/', login_required(TempScanInUpdateView.as_view(), login_url='login'), name='temp_scan_in_edit'),
     path('scan-label/in/new/<int:pk>/delete/', login_required(TempScanInDeleteView.as_view(), login_url='login'), name='temp_scan_in_delete'),
     path('scan-label/in/list/', login_required(ScanInListView.as_view(), login_url='login'), name='scan_in_list'),
+    path('scan-label/in/list/export-xlsx/', login_required(export_scan_in_xlsx, login_url='login'), name='export_scan_in_xlsx'),
     path('finish-good/log/', staff_member_required(PullingFinishGoodItemListView.as_view(), login_url='login_admin'), name='pulling_finish_good_item_list'),
     path('finish-good/list/', login_required(FinishGoodStockListView.as_view(), login_url='login'), name='finish_good_stock'),
+    path('finish-good/list/export-xlsx/', login_required(export_fg_xlsx, login_url='login'), name='export_fg_xlsx'),
     path('scan-label/out/new/decode-qr/', pulling_label_out_decode, name='pulling_label_out_decode'),
     path('scan-label/out/new/', login_required(TempScanOutListView.as_view(), login_url='login'), name='temp_scan_out'),
     path('scan-label/out/new/confirm/', login_required(scan_out_warehouse_db, login_url='login'), name='finish_good_out_warehouse'),
     path('scan-label/out/new/<int:pk>/edit/', login_required(TempScanOutUpdateView.as_view(), login_url='login'), name='temp_scan_out_edit'),
     path('scan-label/out/new/<int:pk>/delete/', login_required(TempScanOutDeleteView.as_view(), login_url='login'), name='temp_scan_out_delete'),
     path('scan-label/out/list/', login_required(ScanOutListView.as_view(), login_url='login'), name='scan_out_list'),
+    path('scan-label/out/list/export-xlsx/', login_required(export_scan_out_xlsx, login_url='login'), name='export_scan_out_xlsx'),
 ]
