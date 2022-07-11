@@ -1,0 +1,21 @@
+{% extends 'guest_base.html' %}
+
+
+{% block title %} Career {% endblock title %} 
+
+{% block content %} 
+<div class="container pt-5 mt-5 mb-5">
+    <div class="pb-3">
+        <h2>General Recruitment and Internship</h2>
+        <hr>
+        <p>We are looking for commited and passionate individual.</p>
+        <p>If you are interested, please submit your resume by e-mail to <a href="mailto:pga@sanwa-ei.com">pga@sanwa-ei.com</a> or by message on <a href="{% url 'guest_contact_us' %}">contact us</a></p>
+    </div>
+    <div class="pb-3">
+        <h2>Position Avaiable</h2>
+        <hr>
+        <p>Currently there are no position available.</p>
+        <p>Please check back later for any update on our career opportunities.</p>
+    </div>
+</div>
+{% endblock content %}

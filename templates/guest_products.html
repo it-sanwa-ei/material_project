@@ -1,0 +1,36 @@
+{% extends 'guest_base.html' %}
+
+{% block title %} Products {% endblock title %} 
+
+{% block style %}
+<style>
+    #product-list{
+        list-style-type: circle;
+    }
+    #product-list li{
+        margin-left: 50px;
+    }
+    #product-list img{
+        max-width: 1000px;
+    }
+</style>
+{% endblock style %}
+
+{% block content %} 
+<div class="container pt-5 mt-5 mb-5">
+    <div>
+        <ul id="product-list">Our product range has expanded tremendously over the past couple of years. To this day, we provide injection molding services for various industries such as:
+            <li>Office Automation</li>
+            <img src="https://ik.imagekit.io/itsanwaei/sanwa-web-guest-img/automotive_7pljzWHtt.png?ik-sdk-version=javascript-1.4.3&updatedAt=1657520608230" alt="office.png" width="100%">
+            <li>Electrical and Electronic Components</li>
+            <img src="https://ik.imagekit.io/itsanwaei/sanwa-web-guest-img/electronic_cbGkW760r.png?ik-sdk-version=javascript-1.4.3&updatedAt=1657520612238" alt="electrical.png" width="100%">
+            <li>Automotive</li>
+            <img src="https://ik.imagekit.io/itsanwaei/sanwa-web-guest-img/automotive_7pljzWHtt.png?ik-sdk-version=javascript-1.4.3&updatedAt=1657520608230" alt="automotive.png" width="100%">
+            <li>Connectors and Computer Related Products</li>
+            <img src="https://ik.imagekit.io/itsanwaei/sanwa-web-guest-img/connector_Bd_c4LZyMe.png?ik-sdk-version=javascript-1.4.3&updatedAt=1657520603144" alt="connector.png" width="100%">
+        </ul>
+    </div>
+</div>
+
+
+{% endblock content %}

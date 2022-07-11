@@ -77,6 +77,7 @@ class TempPullingScanInModel(models.Model):
     ref_no = models.CharField(verbose_name='Ref No.', max_length=255, blank=True, null=True)
     note = models.TextField(verbose_name='Note', blank=True, null=True)
     date_time = models.DateTimeField(verbose_name='Date/Time', blank=True, null=True)
+    pic = models.CharField(verbose_name='PIC', max_length=255, blank=True, null=True)
 
 class ScanInModel(models.Model):
     part_id_customer = models.CharField(verbose_name='Part ID Customer', max_length=255, blank=True, null=True)
@@ -90,6 +91,7 @@ class ScanInModel(models.Model):
     rack = models.CharField(verbose_name='Address', max_length=255, blank=True, null=True)
     note = models.TextField(verbose_name='Note', blank=True, null=True)
     date_time = models.DateTimeField(verbose_name='Date/Time', blank=True, null=True)
+    pic = models.CharField(verbose_name='PIC', max_length=255, blank=True, null=True)
 
     def __str__(self):
         psi = "{0.date_time} / {0.part_id_customer}"
@@ -108,6 +110,7 @@ class TempPullingScanOutModel(models.Model):
     rack = models.CharField(verbose_name='Rack', max_length=255, blank=True, null=True)
     note = models.TextField(verbose_name='Note', blank=True, null=True)
     date_time = models.DateTimeField(verbose_name='Date/Time', blank=True, null=True)
+    pic = models.CharField(verbose_name='PIC', max_length=255, blank=True, null=True)
 
 class ScanOutModel(models.Model):
     part_id_customer = models.CharField(verbose_name='Part ID Customer', max_length=255, blank=True, null=True)
@@ -122,6 +125,7 @@ class ScanOutModel(models.Model):
     rack = models.CharField(verbose_name='Address', max_length=255, blank=True, null=True)
     note = models.TextField(verbose_name='Note', blank=True, null=True)
     date_time = models.DateTimeField(verbose_name='Date/Time', blank=True, null=True)
+    pic = models.CharField(verbose_name='PIC', max_length=255, blank=True, null=True)
 
     def __str__(self):
         pso = "{0.date_time} / {0.part_id_customer}"

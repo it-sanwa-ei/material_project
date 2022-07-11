@@ -11,6 +11,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 class CustomUser(AbstractUser):
     username = models.CharField('username', max_length=25, null=False, blank=False, unique=True)
     email = models.EmailField(null=False, blank=False)
+    department = models.CharField(max_length= 255, null=True, blank=True)
     
 class UserAction(models.Model):
     sender = models.ForeignKey(CustomUser, related_name='user', on_delete=models.CASCADE)

@@ -1,0 +1,54 @@
+{% extends 'guest_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} Contact Us {% endblock title %} 
+
+{% block style %}
+<style>
+    .contact_us_table tr a{
+        text-decoration: none;
+        color: black;
+    }
+    .contact_us_table tr a:visited{
+        text-decoration: none;
+        color: black;
+    }
+</style>
+{% endblock style %}
+
+{% block content %} 
+<div>
+    <span id="message"></span>
+</div>
+<div class="container mt-5 mb-5 pt-5">
+    <div class="row">
+        <div class="col-md-6">
+            {% crispy form %}
+        </div>
+        <div class="col-md-6">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.6028598197727!2d107.12473781391715!3d-6.315784995429163!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e699aecf29b3793%3A0xc5ecfcbf0192186b!2sPT.%20Sanwa%20Engineering%20Indonesia!5e0!3m2!1sid!2sid!4v1657278401846!5m2!1sid!2sid" width="600" height="450" style="border:3px solid black;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="pt-5">
+                <h4>Contact Us</h4>
+                <table class="contact_us_table">
+                    <tr>
+                        <td style="font-size: 30px;"><a href="https://goo.gl/maps/bYgqsxP6mqr1An7b7"><i class="fa-solid fa-location-dot"></i></a>
+                        <td style="padding-left: 10px;"><a href="https://goo.gl/maps/bYgqsxP6mqr1An7b7"><span>Delta Silicon Industrial Park, Jl. Kruing Blok L5 No. 3A, Sukaresmi, Bekasi, Kabupaten Bekasi, Jawa Barat 17550</span></a></td>
+                    </tr>
+                    <tr>
+                        <td style="font-size: 30px;"><a href="tel:+622189906789"><i class="fa-solid fa-phone"></i></a>
+                        <td style="padding-left: 10px;"><a href="tel:+622189906789"><span>+62 21 8990 6789</span></a></td>
+                    </tr>
+                    <tr>
+                        <td style="font-size: 30px;"><a href="tel:+622189906801"><i class="fa-solid fa-fax"></i></a>
+                        <td style="padding-left: 10px;"><a href="tel:+622189906801"><span>+62 21 8990 6801</span></a></td>
+                    </tr>
+                    <tr>
+                        <td style="font-size: 30px;"><a href="mailto:pga@sanwa-ei.com"><i class="fa-solid fa-envelope"></i></a>
+                        <td style="padding-left: 10px;"><a href="mailto:pga@sanwa-ei.com"><span>pga@sanwa-ei.com</span></a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

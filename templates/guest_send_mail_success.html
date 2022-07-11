@@ -1,0 +1,44 @@
+{% extends 'guest_base.html' %}
+
+
+{% block title %} E-mail Sent {% endblock title %} 
+
+{% block content %} 
+<div style="height: 700px; background-color: rgb(250, 251, 246);" class="text-center justify-content-center align-self-center align-content-center align-items-center">
+    <h3 class="pt-5">Your Mail Sent Successfully!</h3>
+    <br>
+    <img src="https://ik.imagekit.io/itsanwaei/sanwa-web-guest-img/letter-envelope_Mtmmyu-K9.gif?ik-sdk-version=javascript-1.4.3&updatedAt=1657268142915" alt="email-sent.gif">
+    <br>
+    <div class="pb-5">
+        <h4>You will be redirect to home in <span id="countdown-5"></span></h4>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        window.scroll(0, 100);
+        var n = 5;
+
+        document.getElementById('countdown-5').innerHTML = n
+        n=4
+        setTimeout(countdown.bind(null, n), 1000)
+        n=3
+        setTimeout(countdown.bind(null, n), 2000)
+        n=2
+        setTimeout(countdown.bind(null, n), 3000)
+        n=1
+        setTimeout(countdown.bind(null, n), 4000)
+        setTimeout(redirect_home, 5000)
+
+        function countdown(n) {
+            document.getElementById('countdown-5').innerHTML = n
+        }
+
+        function redirect_home(){
+            location.replace("{% url 'guest_home' %}");
+        };
+    });
+
+</script>
+
+{% endblock content %}

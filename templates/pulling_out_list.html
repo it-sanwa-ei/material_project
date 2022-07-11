@@ -47,19 +47,23 @@
         </div>
         <div class="form-group col-md-3">
           <label></label>
-          <input type="submit" value="Export Scan In" class="btn btn-success form-control">
+          <input type="submit" value="Export Scan Out" class="btn btn-success form-control">
         </div>
       </div>
     </form>
 </div>
 <hr>
 <div class="mb-4">
-  <form action="{% url 'scan_out_list' %}" method="get" style="text-align:left; width: 25em;">
+  <form action="{% url 'scan_out_list' %}" method="get">
     {% csrf_token %}
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-5">
+        <label class="mb-1 ms-2">Search by Text</label>
+        <input name="qt" class="form-control" type="text" placeholder="Search" aria-label="Search">
+      </div>
+      <div class="col-md-5">
         <label class="mb-1 ms-2">Search by Date</label>
-        <input name="q" class="form-control" type="date" placeholder="Search" aria-label="Search">
+        <input name="qd" class="form-control" type="date" placeholder="Search" aria-label="Search">
       </div>
       <div class="col-md-1 align-items-center align-self-end">  
         <button class="btn btn-primary">Search</button>

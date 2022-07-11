@@ -5,7 +5,7 @@
     {% if user.is_authenticated %}
         Menu
     {% else %} 
-        <meta http-equiv="refresh" content="0; {% url 'login' %}" />
+        <meta http-equiv="refresh" content="0; {% url 'guest_home' %}" />
     {% endif %}
 {% endblock header %}
 
@@ -23,6 +23,6 @@
             </div>
         </div>
     {% else %} 
-        <meta http-equiv="refresh" content="0; {% url 'login' %}" />
+        <meta http-equiv="refresh" content="0; {% url 'guest_home' %}" />
     {% endif %}
 {% endblock content %}

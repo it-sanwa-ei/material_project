@@ -574,6 +574,7 @@ def pulling_label_in_decode(request):
                 tfg_item.ref_no = data_clean[5]
                 tfg_item.note = data_clean[6]
                 tfg_item.date_time =  timezone.now()
+                tfg_item.pic = request.user
 
                 print(tfg_item)
 
@@ -648,6 +649,7 @@ def scan_in_warehouse_db(request):
             si.note = tfg[9]
             fg.date_time = tfg[10]
             si.date_time = tfg[10]
+            si.pic = request.user
             fg.save()
             si.save()
 
@@ -686,9 +688,14 @@ class ScanInListView(SingleTableView):
     ordering = ['-date_time']
 
     def get_queryset(self):
-        query = self.request.GET.get('q')
-        if query:
-            return ScanInModel.objects.filter( Q(date_time__icontains=query))
+        query_date = self.request.GET.get('qd')
+        query_text = self.request.GET.get('qt')
+        if query_date and query_text:
+            return ScanInModel.objects.filter( Q(date_time__icontains=query_date, part_id_customer__icontains=query_text) | Q(date_time__icontains=query_date, part_name__icontains=query_text) | Q(date_time__icontains=query_date, customer__icontains=query_text) | Q(date_time__icontains=query_date, lot_no__icontains=query_text) | Q(date_time__icontains=query_date, rack__icontains=query_text))
+        elif query_date:
+            return ScanInModel.objects.filter( Q(date_time__icontains=query_date))
+        elif query_text:
+            return ScanInModel.objects.filter( Q(part_id_customer__icontains=query_text) | Q(part_name__icontains=query_text) | Q(customer__icontains=query_text) | Q(lot_no__icontains=query_text) | Q(rack__icontains=query_text))
         else:
             return ScanInModel.objects.all().order_by('-date_time')
 
@@ -721,7 +728,7 @@ def export_scan_in_xlsx(request):
     decimal_format = wb.add_format({'num_format':'0.00'})
     date_time_format = wb.add_format({'num_format':'dd-mm-yyyy / hh:mm'})
 
-    columns = [ 'No Mc', 'Part ID Customer', 'Part Name', 'Customer', 'Lot No.', 'Quantity', 'Address', 'Date / Time']
+    columns = [ 'No Mc', 'Part ID Customer', 'Part Name', 'Customer', 'Lot No.', 'Quantity', 'Address', 'Date / Time', 'PIC']
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], bold)
@@ -737,8 +744,9 @@ def export_scan_in_xlsx(request):
         quantity = filtered_query.values_list('quantity', flat=True).order_by('date_time')
         rack = filtered_query.values_list('rack', flat=True).order_by('date_time')
         date_time = filtered_query.values_list('date_time', flat=True).order_by('date_time')
+        pic = filtered_query.values_list('pic', flat=True).order_by('date_time')
 
-        q_list = [line, part_id_customer, part_name, customer, lot_no, quantity, rack, date_time]
+        q_list = [line, part_id_customer, part_name, customer, lot_no, quantity, rack, date_time, pic]
         
         for q in range(0, len(q_list)):
             r = 1
@@ -817,6 +825,7 @@ def pulling_label_out_decode(request):
                 tfg_item.rack = PullingProduct.objects.filter(part_id_customer=data_clean[0]).values('rack').last()['rack']
                 tfg_item.note = data_clean[6]
                 tfg_item.date_time =  timezone.now()
+                tfg_item.pic = request.user
 
                 print(tfg_item)
 
@@ -909,6 +918,7 @@ def scan_out_warehouse_db(request):
             so.rack = tfg[10]
             fg.date_time = tfg[12]
             so.date_time = tfg[12]
+            so.pic = request.user
             fg.save()
             so.save()
 
@@ -947,9 +957,14 @@ class ScanOutListView(SingleTableView):
     ordering = ['-date_time']
 
     def get_queryset(self):
-        query = self.request.GET.get('q')
-        if query:
-            return ScanOutModel.objects.filter( Q(date_time__icontains=query))
+        query_date = self.request.GET.get('qd')
+        query_text = self.request.GET.get('qt')
+        if query_date and query_text:
+            return ScanOutModel.objects.filter( Q(date_time__icontains=query_date, part_id_customer__icontains=query_text) | Q(date_time__icontains=query_date, part_name__icontains=query_text) | Q(date_time__icontains=query_date, customer__icontains=query_text) | Q(date_time__icontains=query_date, lot_no__icontains=query_text) | Q(date_time__icontains=query_date, rack__icontains=query_text))
+        elif query_date:
+            return ScanOutModel.objects.filter( Q(date_time__icontains=query_date))
+        elif query_text:
+            return ScanOutModel.objects.filter( Q(part_id_customer__icontains=query_text) | Q(part_name__icontains=query_text) | Q(customer__icontains=query_text) | Q(lot_no__icontains=query_text) | Q(rack__icontains=query_text))
         else:
             return ScanOutModel.objects.all().order_by('-date_time')
 
@@ -982,7 +997,7 @@ def export_scan_out_xlsx(request):
     decimal_format = wb.add_format({'num_format':'0.00'})
     date_time_format = wb.add_format({'num_format':'dd-mm-yyyy / hh:mm'})
 
-    columns = [ 'Customer', 'Part ID Customer', 'Part Name', 'Lot No.', 'Quantity', 'SPQ', 'Address', 'Date / Time']
+    columns = [ 'Customer', 'Part ID Customer', 'Part Name', 'Lot No.', 'Quantity', 'SPQ', 'Address', 'Date / Time', 'PIC']
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], bold)
@@ -998,8 +1013,9 @@ def export_scan_out_xlsx(request):
         spq = filtered_query.values_list('spq', flat=True).order_by('date_time')
         rack = filtered_query.values_list('rack', flat=True).order_by('date_time')
         date_time = filtered_query.values_list('date_time', flat=True).order_by('date_time')
+        pic = filtered_query.values_list('pic', flat=True).order_by('date_time')
 
-        q_list = [customer, part_id_customer, part_name, lot_no, quantity, spq, rack, date_time]
+        q_list = [customer, part_id_customer, part_name, lot_no, quantity, spq, rack, date_time, pic]
         
         for q in range(0, len(q_list)):
             r = 1
@@ -1092,7 +1108,7 @@ def export_fg_xlsx(request):
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], bold)
 
-    filtered_query = PullingFinishGoodItem.objects.filter(date_time__gte=datetime(year=2022, month=1, day=1) ,date_time__lte=request_date)
+    filtered_query = PullingFinishGoodItem.objects.filter(date_time__gte=datetime(year=2022, month=1, day=1) ,date_time__lte=request_date).order_by('customer', 'part_id_customer')
 
     fgs_list = []
     part_id_customer_list = []

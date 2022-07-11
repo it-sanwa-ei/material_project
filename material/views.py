@@ -22,7 +22,6 @@ import decimal
 
 from datetime import datetime, date, time, timedelta
 
-from tablib import Dataset
 import xlsxwriter
 import openpyxl
 import io
@@ -565,3 +564,6 @@ def export_scrap_xlsx(request):
         response = HttpResponse("<script> alert( '%s' ); window.location='%s' </script>" %(warning, url))
 
     return response
+
+class MaterialHopperSummary(TemplateView):
+    template_name = 'material_hopper_summary.html'

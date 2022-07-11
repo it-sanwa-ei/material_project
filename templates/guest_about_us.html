@@ -1,0 +1,89 @@
+{% extends 'guest_base.html' %}
+
+
+{% block title %} About Us {% endblock title %} 
+
+{% block style %}
+<style>
+    .img_about_us{display:inline-block; margin: auto auto;}
+
+    @media screen and (max-width: 768px) {
+      .img_about_us{
+            display:none !important;
+        }
+    }
+</style>
+{% endblock style %}
+
+{% block content %} 
+<img src="https://ik.imagekit.io/itsanwaei/sanwa-web-guest-img/2017-03-23_pB0DbSuyc8.jpg?ik-sdk-version=javascript-1.4.3&updatedAt=1657261481425" style="max-width: 100%;">
+<div class="container mt-5 mb-5">
+    <div class="d-flex">
+        <div class="col-md-6">
+            <div class="container" style="text-align: justify;">
+                <h3>Background</h3>
+                <hr>
+                <p>PT. Sanwa Engineering Indonesia or PT. SEI was established in 2000 as a subsidiary of the Sanwa Group, based in Singapore, and as an expansion to its current on-going globalization efforts. The group has production facilities in the major Asian markets like China, Malaysia, Singapore, India, Japan and Indonesia.</p>
+                <p>Fully operational since 2001, PT. SEI specialized in providing a one-stop manufacturing facility that includes mold fabrication, mold repair, injection molding and part assembly. Being an ISO 9001 and QS 9000 certified company, we meet the needs of our customers through stringent quality control standards along with exceptional engineering services through continuous investment in both people and machines.</p>
+                <p>PT. SEI has since become one of the leading suppliers of engineering plastic components and will continue to strive for excellence with the trust and support entrusted by its customers.</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="container d-flex flex-column text-center">
+                <img src="https://ik.imagekit.io/itsanwaei/sanwa-web-guest-img/sanwa-3d_qA_GQ5--A.jpg?ik-sdk-version=javascript-1.4.3&updatedAt=1657261469477" alt="sanwa_3d.jpg" width="350px" class="img_about_us">
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-end">
+        <div class="col-md-6">
+            <div class="container text-center">
+                <img src="https://ik.imagekit.io/itsanwaei/sanwa-web-guest-img/vision-mission_JKO20iLbu.png?ik-sdk-version=javascript-1.4.3&updatedAt=1657261471923" alt="vision-mission.png" width="250px"  class="img_about_us">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="container" style="text-align: justify;">
+                <h3 class="text-end">Vision & Mission</h3>
+                <hr>
+                <h6>Vision</h6>
+                <p>“To be the preferred provider of engineering products and services for the Indonesian market.”</p>
+                <h6>Mission</h6>
+                <p>“To exceed customers satisfaction by delivering customer focused solutions on world class quality.”</p>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex">
+        <div class="col-md-6">
+            <div class="container" style="text-align: justify;">
+                <h3>Quality</h3>
+                <hr>
+                <p>We place extreme emphasis on the quality of our products. Since the start of operations, we have invested in the training of our staff and purchased the latest equipment to attain our missions and objectives of “0 defect” (zero defect). We have also taken the time and effort to ensure that our quality system is following world-class standard, as such ISO 9001 and QS 9000 has been accredited. This is an ongoing exercise in our relentless pursuit of perfection.</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="container text-center">
+                <img src="https://ik.imagekit.io/itsanwaei/sanwa-web-guest-img/standards_w_lmvZEK8.png?ik-sdk-version=javascript-1.4.3&updatedAt=1657261476379" alt="standards.png" width="275px" class="img_about_us">
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-end">
+        <div class="col-md-6">
+            <div class="container">
+                <img src="https://ik.imagekit.io/itsanwaei/sanwa-web-guest-img/Whats-App-Image-2022-07-06-at-2-57-41-PM_5HlbQf_wB.png?ik-sdk-version=javascript-1.4.3&updatedAt=1657261480816" alt="production_img1.png" width="500px" style="max-width: 100%; height: auto;" class="img_about_us">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="container" style="text-align: justify;">
+                <h3 class="text-end">Resources</h3>
+                <hr>
+                <p>The trust and support from our customers have been realized through constant upgrading of all resources available to the company. Our people are sent overseas for training at both HQ and our other various subsidiaries. In addition, we also invite experts with international standard certifications to do training and seminars.</p>
+                <p>We also invest in excellent equipment to ensure stability and quality of products. We constantly monitor new trends in the market and we are not afraid to try new technology in order to benefit both our customer and our employees.</p>
+                <p>Thanks to all our customers for the support given. We promise to fulfil and exceed your satisfaction by striving to excel in the services provided in order to aim of “MUTUAL GROWTH”.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock content %}
