@@ -37,7 +37,6 @@ import pytz
 
 from django_tables2 import LazyPaginator, SingleTableView
 
-from tablib import Dataset
 import xlsxwriter
 import openpyxl
 import io

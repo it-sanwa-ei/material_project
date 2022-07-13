@@ -8,6 +8,7 @@ from .views import ProductDeleteView, ProductDetailView, ProductListView, Produc
 from .views import HopperCreateView, HopperListView, HopperUpdateView, HopperDeleteView
 from .views import ScrapCreateView, ScrapListView, ScrapUpdateView, ScrapDeleteView
 from .views import export_hopper_xlsx, export_material_usage, ajax_fill_hopper_form, import_product_xlsx, export_scrap_xlsx
+from .views import MaterialHopperSummary, hopper_line_chart, hopper_bar_chart, hopper_pie_chart
 
 urlpatterns = [
     path('', MaterialHomeView.as_view(), name='material_home'),
@@ -24,6 +25,10 @@ urlpatterns = [
     path('hopper_fill_list/export_hopper_xlsx/', login_required(export_hopper_xlsx, login_url='login'), name='export_hopper_xlsx'),
     path('hopper_fill_list/export_material_usage/', login_required(export_material_usage, login_url='login'), name='export_material_usage'),
     path('hopper_fill/ajax/hopper/', ajax_fill_hopper_form, name='ajax_fill_hopper_form'),
+    path('hopper_fill/summary/', login_required(MaterialHopperSummary.as_view(), login_url='login'), name='hopper_summary'),
+    path('hopper_fill/ajax/line_chart/', hopper_line_chart, name='ajax_hopper_line_chart'),
+    path('hopper_fill/ajax/bar_chart/', hopper_bar_chart, name='ajax_hopper_bar_chart'),
+    path('hopper_fill/ajax/pie_chart/', hopper_pie_chart, name='ajax_hopper_pie_chart'),
     path('scrap_form/new/', login_required(ScrapCreateView.as_view(), login_url='login'), name='scrap_input'),
     path('scrap_list/', login_required(ScrapListView.as_view(), login_url='login'), name='scrap_list'),
     path('scrap_list/<int:pk>/edit/', login_required(ScrapUpdateView.as_view(), login_url='login'), name='scrap_edit'),

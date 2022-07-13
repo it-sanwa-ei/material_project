@@ -566,4 +566,146 @@ def export_scrap_xlsx(request):
     return response
 
 class MaterialHopperSummary(TemplateView):
-    template_name = 'material_hopper_summary.html'
+    template_name = 'hopper_fill_summary.html'
+
+def hopper_line_chart(request):
+    if request.method == 'POST':
+        if request.POST.get('request_date_start'):
+            request_date_start = request.POST.get('request_date_start')
+            request_date_start = datetime.strptime(request_date_start, '%Y-%m-%d')
+        else:
+            request_date_start = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+            request_date_start = request_date_start - timedelta(days=30)
+        
+        if request.POST.get('request_date_end'):
+            request_date_end = request.POST.get('request_date_end')
+            request_date_end = datetime.strptime(request_date_end, '%Y-%m-%d')
+        else:
+            request_date_end = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+        
+        labels = []
+        data_total_virgin = []
+        data_total_regrind = []
+        date_list = []
+        date_end = request_date_end.date()
+        date_start = request_date_start.date()
+        for d in range((date_end-date_start).days + 1):
+            d_between = date_start + timedelta(days=d)
+            date_list.append(d_between)
+    else:
+        labels = []
+        data_total_virgin = []
+        data_total_regrind = []
+
+        lastmonth = datetime.now(tz=tz).date() - timedelta(days=30)
+        today = datetime.now(tz=tz).date()
+        date_list = []
+        for d in range((today-lastmonth).days + 1):
+            d_between = lastmonth + timedelta(days=d)
+            date_list.append(d_between)
+
+    for dates in date_list:
+        labels.append(dates)
+        queryset = HopperFillData.objects.filter(tanggal=dates).values('pemakaian_virgin').aggregate(total_virgin=Sum('pemakaian_virgin'))
+        data_total_virgin.append(queryset['total_virgin'])
+        queryset = HopperFillData.objects.filter(tanggal=dates).values('pemakaian_regrind').aggregate(total_regrind=Sum('pemakaian_regrind'))
+        data_total_regrind.append(queryset['total_regrind'])
+
+    return JsonResponse(data={
+        'labels':labels, 'data_total_virgin':data_total_virgin, 'data_total_regrind':data_total_regrind, 
+            })
+
+def hopper_bar_chart(request):
+    print(request.method)
+    if request.method == 'POST':
+        if request.POST.get('request_date_start'):
+            request_date_start = request.POST.get('request_date_start')
+            print(request_date_start)
+            request_date_start = datetime.strptime(request_date_start, '%Y-%m-%d')
+        else:
+            request_date_start = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+            request_date_start = request_date_start - timedelta(days=30)
+        
+        if request.POST.get('request_date_end'):
+            request_date_end = request.POST.get('request_date_end')
+            print(request_date_end)
+            request_date_end = datetime.strptime(request_date_end, '%Y-%m-%d')
+        else:
+            request_date_end = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+        
+        date_list = []
+        date_end = request_date_end.date()
+        date_start = request_date_start.date()
+        for d in range((date_end-date_start).days + 1):
+            d_between = date_start + timedelta(days=d)
+            date_list.append(d_between)
+    else:
+        date_start = datetime.now(tz=tz).date() - timedelta(days=30)
+        date_end = datetime.now(tz=tz).date()
+        date_list = []
+        for d in range((date_end-date_start).days + 1):
+            d_between = date_start + timedelta(days=d)
+            date_list.append(d_between)
+    
+    material = Product.objects.order_by('material').values_list('material', flat=True).distinct()
+    material = list(material)
+    data_material = []
+    data_virgin = []
+    data_regrind = []
+    for m in material:
+        data_material.append(m)
+        queryset_v = HopperFillData.objects.filter(product__material=m, tanggal__gte=date_start, tanggal__lte=date_end).values('pemakaian_virgin').aggregate(total_virgin=Sum('pemakaian_virgin'))
+        data_virgin.append(queryset_v['total_virgin'])
+        queryset_r = HopperFillData.objects.filter(product__material=m, tanggal__gte=date_start, tanggal__lte=date_end).values('pemakaian_regrind').aggregate(total_regrind=Sum('pemakaian_regrind'))
+        data_regrind.append(queryset_r['total_regrind'])
+
+    print(len(data_material))
+
+    return JsonResponse(data={
+        'data_material':data_material, 'data_virgin':data_virgin, 'data_regrind':data_regrind, 
+            })
+
+
+def hopper_pie_chart(request):
+    print(request.method)
+    if request.method == 'POST':
+        if request.POST.get('request_date_start'):
+            request_date_start = request.POST.get('request_date_start')
+            print(request_date_start)
+            request_date_start = datetime.strptime(request_date_start, '%Y-%m-%d')
+        else:
+            request_date_start = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+            request_date_start = request_date_start - timedelta(days=30)
+        
+        if request.POST.get('request_date_end'):
+            request_date_end = request.POST.get('request_date_end')
+            print(request_date_end)
+            request_date_end = datetime.strptime(request_date_end, '%Y-%m-%d')
+        else:
+            request_date_end = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
+        
+        date_list = []
+        date_end = request_date_end.date()
+        date_start = request_date_start.date()
+        for d in range((date_end-date_start).days + 1):
+            d_between = date_start + timedelta(days=d)
+            date_list.append(d_between)
+    else:
+        date_start = datetime.now(tz=tz).date() - timedelta(days=30)
+        date_end = datetime.now(tz=tz).date()
+        date_list = []
+        for d in range((date_end-date_start).days + 1):
+            d_between = date_start + timedelta(days=d)
+            date_list.append(d_between)
+    
+
+    queryset = HopperFillData.objects.filter(tanggal__gte=date_start, tanggal__lte=date_end).values('pemakaian_virgin').aggregate(total_virgin=Sum('pemakaian_virgin'))
+    total_virgin = queryset['total_virgin']
+    queryset = HopperFillData.objects.filter(tanggal__gte=date_start, tanggal__lte=date_end).values('pemakaian_regrind').aggregate(total_regrind=Sum('pemakaian_regrind'))
+    total_regrind = queryset['total_regrind']
+    
+
+
+    return JsonResponse(data={
+                'data_virgin':total_virgin, 'data_regrind':total_regrind, 
+            })

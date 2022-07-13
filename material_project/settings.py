@@ -106,8 +106,8 @@ WSGI_APPLICATION = 'material_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',           #development use : postgres, deployment use : material_hopper_db
-        'USER': 'postgres',                   #development use : postgres, deployment use : sanwa_host
+        'NAME': 'material_hopper_db',           #development use : postgres, deployment use : material_hopper_db
+        'USER': 'sanwa_host',                   #development use : postgres, deployment use : sanwa_host
         'PASSWORD': 'asd123asd',
         'HOST' : '127.0.0.1',
         'PORT' : 5432,

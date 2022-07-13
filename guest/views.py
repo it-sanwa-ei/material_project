@@ -50,7 +50,7 @@ def guest_send_email(request):
             guest_attachment = form.cleaned_data['guest_attachment']
 
             try:
-                mail = EmailMessage(subject=str(guest_subject) + ' - ' + str(guest_name), body=guest_message + '\n\nRedirected from ' + str(guest_email), from_email=guest_email, to=['itsupport@sanwa-ei.com'],)
+                mail = EmailMessage(subject=str(guest_subject) + ' - ' + str(guest_name), body=guest_message + '\n\nRedirected from ' + str(guest_email), from_email=guest_email, to=['pga@sanwa-ei.com'],)
                 print(mail)
                 if guest_attachment:
                     mail.attach(guest_attachment.name, guest_attachment.read(), guest_attachment.content_type)

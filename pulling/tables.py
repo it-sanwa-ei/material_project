@@ -3,7 +3,6 @@ from django_tables2.utils import A
 from django.utils.html import format_html
 import itertools
 
-from tables import Column
 from .models import PullingProduct, PullingCustomer, PullingFinishGoodItem, FinishGoodStock
 from .models import TempPullingScanInModel, TempPullingScanOutModel
 from .models import ScanInModel, ScanOutModel
