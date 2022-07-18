@@ -134,6 +134,7 @@
   })
 </script>
 
+{% comment %}
 <script>
   $(document).ready(function(){
     $('#select_co_date').change(function(){
@@ -144,12 +145,14 @@
         method: 'GET',
         url:"{% url 'check_co' %}",
         success:function(data){
-          if(data){
+          if(data.query){
             alert('Tanggal ' + id_date + ' sudah ada List CO.')
+            alert('query = '+ data.query)
           }
         }
       })
     })
   })
 </script>
+{% endcomment %}
 {% endblock javascript %}

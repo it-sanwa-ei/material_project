@@ -617,7 +617,7 @@ def hopper_line_chart(request):
         else:
             material_total = 0
             data_material_total.append(material_total)
-        berat_ideal = EstimasiMaterialUsageCO.objects.filter(tanggal=dates).values('berat_target_output').aggregate(total_berat=Sum('berat_target_output'))
+        berat_ideal = EstimasiMaterialUsageCO.objects.filter(tanggal_operasi=dates).values('berat_target_output').aggregate(total_berat=Sum('berat_target_output'))
         total_berat_ideal = berat_ideal['total_berat']
         print(dates, material_total, total_berat_ideal)
         data_material_ideal.append(total_berat_ideal)

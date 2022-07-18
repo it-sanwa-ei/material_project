@@ -94,4 +94,6 @@ class EstimasiMaterialUsageCO(models.Model):
     tanggal_operasi = models.DateField('Tanggal',blank=True, null=True)
     part_no = models.CharField('Part No', max_length=255, blank=True, null=True)
     target_output = models.PositiveIntegerField('Target Output', blank=True, null=True)
-    berat_target_output = models.DecimalField('Berat Target Output', max_digits=200, decimal_places=2, blank=True, null=True)
+    total_berat_material = models.DecimalField('Total Berat Material', max_digits=200, decimal_places=2, blank=True, null=True)
+    virgin_per_day = models.DecimalField('Virgin / Day', max_digits=200, decimal_places=2, blank=True, null=True)
+    regrind_per_day = models.DecimalField('Regrind / Day', max_digits=200, decimal_places=2, blank=True, null=True)

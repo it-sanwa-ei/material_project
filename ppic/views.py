@@ -86,12 +86,10 @@ def import_change_order_xlsx(request):
                         emu_co.tanggal_operasi = date
                         emu_co.part_no = change_order.part_id_customer
                         emu_co.target_output = change_order.jumlah_produksi / count_days(change_order.date_co, change_order.estimasi_selesai.date())
-                        try:
-                            berat_product = Product.objects.filter(part_id = emu_co.part_no).values('part_weight').last()['part_weight']
-                        except:
-                            berat_product = 0
-                        emu_co.berat_target_output = (decimal.Decimal(berat_product) * decimal.Decimal(emu_co.target_output)) /1000
-                        if emu_co.tanggal != None and emu_co.part_no != None and emu_co.target_output != None:
+                        emu_co.virgin_per_day= change_order.virgin / count_days(change_order.date_co, change_order.estimasi_selesai.date())
+                        emu_co.regrind_per_day = change_order.regrind / count_days(change_order.date_co, change_order.estimasi_selesai.date())
+                        emu_co.total_berat_material = emu_co.virgin_per_day + emu_co.regrind_per_day
+                        if emu_co.tanggal_co != None and emu_co.part_no != None and emu_co.virgin_per_day != None and emu_co.regrind_per_day != None:
                             emu_list.append(emu_co)
 
                     if change_order.part_id_customer != None and change_order.jumlah_produksi != None:
@@ -135,8 +133,15 @@ def delete_co(request):
             return HttpResponse("<script> alert('Error no request_date');</script>")
 
 
+'''
 def ajax_check_co(request):
     if request.method == 'GET':
-        request_date = request.GET.get('select_co_date')
-        queryset = list(ChangeOrder.objects.filter(date_co=request_date).values())
-        return JsonResponse(data={'query': queryset})
+        query = request.GET.get('select_co_date')
+        if query:
+            first = ChangeOrder.objects.filter(date_co=query).first()
+            last = ChangeOrder.objects.filter(date_co=query).last()
+            if first and last:
+                return JsonResponse(data={'first': first, 'last':last})
+        else:
+            return JsonResponse(data=None, safe=False)
+'''
