@@ -617,10 +617,16 @@ def hopper_line_chart(request):
         else:
             material_total = 0
             data_material_total.append(material_total)
-        berat_ideal = EstimasiMaterialUsageCO.objects.filter(tanggal_operasi=dates).values('berat_target_output').aggregate(total_berat=Sum('berat_target_output'))
-        total_berat_ideal = berat_ideal['total_berat']
-        print(dates, material_total, total_berat_ideal)
-        data_material_ideal.append(total_berat_ideal)
+        berat_ideal_virgin = EstimasiMaterialUsageCO.objects.filter(tanggal_operasi=dates).values('virgin_per_day').aggregate(total_virgin_ideal=Sum('virgin_per_day'))
+        berat_ideal_regrind = EstimasiMaterialUsageCO.objects.filter(tanggal_operasi=dates).values('regrind_per_day').aggregate(total_regrind_ideal=Sum('regrind_per_day'))
+        total_virgin_ideal = berat_ideal_virgin['total_virgin_ideal']
+        total_regrind_ideal = berat_ideal_regrind['total_regrind_ideal']
+        if total_virgin_ideal != None and total_regrind_ideal != None:
+            material_total_ideal = total_virgin_ideal+total_regrind_ideal
+            data_material_ideal.append(material_total_ideal)
+        else:
+            material_total_ideal = 0
+            data_material_ideal.append(material_total_ideal)
 
     return JsonResponse(data={
         'labels':labels, 'data_total_virgin':data_total_virgin, 'data_total_regrind':data_total_regrind, 'data_material_total':data_material_total, 'data_material_ideal':data_material_ideal,
