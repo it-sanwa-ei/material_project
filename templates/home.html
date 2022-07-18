@@ -21,6 +21,11 @@
                 <p><a href="{% url 'pulling_home' %}"><i class="fa-solid fa-cart-flatbed" style="font-size: 200px;"></i></a></p>
                 <p><a href="{% url 'pulling_home' %}" style="text-decoration: none;">Pulling</a></p>
             </div>
+
+            <div style="text-align: center; margin: 15px;">
+                <p><a href="{% url 'ppic_home' %}"><i class="fa-solid fa-compass-drafting" style="font-size: 200px;"></i></a></p>
+                <p><a href="{% url 'ppic_home' %}" style="text-decoration: none;">PPIC</a></p>
+            </div>
         </div>
     {% else %} 
         <meta http-equiv="refresh" content="0; {% url 'guest_home' %}" />

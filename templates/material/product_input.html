@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} Product Form {% endblock title %}
+
+{% block header %} Product Form {% endblock header %}
+{% block content %} 
+<div class="container">
+    {% csrf_token %}
+    {% crispy form %}
+</div>
+<br>
+{% endblock content %}

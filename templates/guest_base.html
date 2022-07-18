@@ -81,6 +81,17 @@
         right: 20px;
         display: none;
       }
+
+      @media screen and (max-width: 424px) {
+      #sanwa-name{
+            display: none !important;
+        }
+      }
+      @media screen and (max-width: 768px) {
+      #company-title{
+            font-size: medium !important;
+        }
+      }
     </style>
 
     {% block style %}{% endblock style %}
@@ -91,7 +102,7 @@
     <button type="button" class="btn btn-secondary btn-floating btn-lg" id="btn-back-to-top"><i class="fas fa-arrow-up"></i></button>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="{% url 'guest_home' %}"><img src="https://i.ibb.co/NKkyxjW/sanwa-logo.png" alt="sanwa-logo.png" height="64px" class="mb-2"><span style="font-size: larger;">PT. Sanwa Engineering Indonesia</span></a>
+          <a class="navbar-brand" id="company-title" href="{% url 'guest_home' %}"><img id="sanwa-logo" src="https://i.ibb.co/NKkyxjW/sanwa-logo.png" alt="sanwa-logo.png" height="100%" style="max-height: 64px;" class="mb-2"><span id="sanwa-name" style="font-size:larger;" >PT. Sanwa Engineering Indonesia</span></a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sanwa_welcome_navbar" aria-controls="sanwa_welcome_navbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>

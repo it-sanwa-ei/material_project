@@ -1,0 +1,154 @@
+{% extends 'base.html' %} 
+{% load admin_urls %}
+
+{% block title %} Material Hopper List {% endblock title %} 
+{% block header %} Material Hopper List {% endblock header %}
+
+{% block note %}
+<hr>
+<div>
+  <label style="font-size: larger;"> Export Data Table </label>
+    <form method="post" action="{% url 'export_hopper_xlsx' %}">
+      {% csrf_token %}
+      <div class="form-group row" style="padding-bottom: 1em;">
+        <div class="form-group col-md-3">
+          <label for="request_date_start_dt">From</label>
+          <input type="date" name="request_date_start_dt" id="request_date_start_dt" class="form-control" placeholder="From (dd/mm/yyyy)">
+        </div>
+        <div class="form-group col-md-3">
+          <label for="request_date_end_dt">To</label>
+          <input type="date" name="request_date_end_dt" id="request_date_end_dt" class="form-control" placeholder="To (dd/mm/yyyy)">
+        </div>
+        <div class="form-group col-md-3">
+          <label></label>
+          <input type="submit" value="Export Excel" class="btn btn-success form-control">
+        </div>
+      </div>
+    </form>
+</div>
+
+<hr>
+
+<div>
+  <label style="font-size: larger;"> Export Usage </label>
+    <form method="post" action="{% url 'export_material_usage' %}">
+      <div class="form-group row" style="padding-bottom: 1em;">
+        {% csrf_token %}
+        <div class="form-group col-md-3">
+          <label for="request_date_start_mu">From</label>
+          <input type="date" name="request_date_start_mu" id="request_date_start_mu" class="form-control" placeholder="From (dd/mm/yyyy)">
+        </div>
+        <div class="form-group col-md-3">
+          <label for="request_date_end_mu">To</label>
+          <input type="date" name="request_date_end_mu" id="request_date_end_mu" class="form-control" placeholder="To (dd/mm/yyyy)">
+        </div>
+        <div class="form-group col-md-3">
+          <label></label>
+          <input type="submit" value="Export Material Usage Report" class="btn btn-primary form-control">
+        </div>
+      </div>  
+    </form>
+</div>
+{% endblock note %}
+
+{% block content %} 
+<div class="mt-2 mb-2">
+  <div class="row">
+      <div class="form-group name1 col-md-6 text-start">
+          <form class="form-inline mt-2 mt-md-0" action="{% url 'hopper_fill_data' %}" method="get">
+              <input name="qu" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search Hopper Fill Data">
+          </form>
+      </div>
+      <div class="form-group name2 col-md-6 text-end">
+          <button class="btn btn-white" style="border: 1px solid rgb(11, 94, 215);"><a href="{% url 'hopper_fill'%}" style= "text-decoration: none;">Add New Hopper Fill Data</a></button>
+      </div>
+  </div>
+</div>
+
+
+
+<div>
+    <table style="border: 1px solid white;">
+        <tr style="border: 1px solid white;">
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">#</th>
+		        <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">No Mesin</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Product ID</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Product Name</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Material</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">No Lot</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Temp (°C)</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Tanggal</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Jam Isi</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Pemakaian Virgin (kg)</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Pemakaian Regrind (kg)</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Total Pemakaian (kg)</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">Shift</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;">PIC</th>
+            <th style="border: 1px solid white; background-color: rgb(100, 100, 255); color: white; text-align: center;" colspan="2"></th>
+        </tr>
+        {% for hopper_fill_data in hopper_fill_data_list %} 
+        <tr style="border: 1px solid white;">
+            <td style="width: 5em; border: 1px solid white; background-color: lightblue; text-align: center;">{{ page_obj.start_index|add:forloop.counter0 }}</td>
+		        <td style="width: 20em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.no_mesin}}</td>
+            <td style="width: 75em; border: 1px solid white; background-color: lightblue; text-align: center;"><a href="{% url 'product_detail' hopper_fill_data.product.pk %}">{{hopper_fill_data.product.part_id}}</a></td>
+            <td style="width: 200em; border: 1px solid white; background-color: lightblue; font-size: small;">{{hopper_fill_data.product.part_name}}</td>
+            <td style="width: 150em; border: 1px solid white; background-color: lightblue; font-size: small;">{{hopper_fill_data.product.material}}</td>
+            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.no_lot}}</td>
+            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.temp}}</td>
+            <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center; font-size: small;">{{hopper_fill_data.tanggal|date:"d-M-Y"}}</td>
+            <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.jam_isi|time:"H:i"}}</td>
+            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pemakaian_virgin}}</td>
+            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pemakaian_regrind}}</td>
+            <td style="width: 25em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pemakaian_virgin|add:hopper_fill_data.pemakaian_regrind}}</td>
+            <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.shift}}</td>
+            <td style="width: 50em; border: 1px solid white; background-color: lightblue; text-align: center;">{{hopper_fill_data.pic}}</td>
+            <td style="width: 15em; border: 1px solid white; border-right: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_edit' hopper_fill_data.pk %}"><i class="fa-solid fa-pen"></i></a></td>
+            <td style="width: 15em; border: 1px solid white; border-left: 0px; background-color: lightblue; text-align: center;"><a href="{% url 'hopper_fill_delete' hopper_fill_data.pk %}"><i class="fa-solid fa-trash-can"></i></a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock content %}
+
+{% block footer %}
+
+  {% if is_paginated %}
+    <ul class="pagination align-items-center justify-content-center text-center">
+
+    {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+    {% else %}
+        <li class="page-item disabled"><span class="page-link" aria-hidden="true" aria-disabled="true">First</span></li>
+        <li class="page-item disabled"><span class="page-link" aria-hidden="true" aria-disabled="true">Previous</span></li>
+    {% endif %}
+    
+    {% if page_obj.number|add:'-4' > 1 %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.number|add:'-5' }}">&hellip;</a></li>
+    {% endif %}
+    
+    {% for i in page_obj.paginator.page_range %}
+        {% if page_obj.number == i %}
+            <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
+        {% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
+            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+        {% endif %}
+    {% endfor %}
+    
+    {% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.number|add:'5' }}">&hellip;</a></li>
+    {% endif %}
+    
+    {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-hidden="true">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-hidden="true">Last</a></li>
+    {% else %}
+        <li class="page-item disabled"><span class="page-link" aria-hidden="true" aria-disabled="true">Next</span></li>
+        <li class="page-item disabled"><span class="page-link" aria-hidden="true" aria-disabled="true">Last</span></li>
+    {% endif %}
+    
+    </ul>
+  {% endif %}
+
+{% endblock footer %}

@@ -30,15 +30,15 @@ import io
 register = template.Library()
 
 # Create your views here.
-from .models import Product, HopperFillData, Scrap
+from .models import Product, HopperFillData, Scrap, EstimasiMaterialUsageCO
 from .forms import ProductForm, HopperForm, ScrapForm
 
 class MaterialHomeView(TemplateView):
-    template_name = 'material_home.html'
+    template_name = 'material/material_home.html'
 
 class ProductListView(ListView):
     model = Product
-    template_name = 'product.html'
+    template_name = 'material/product.html'
     context_object_name = 'product_list'
     paginate_by = 50
 
@@ -52,20 +52,20 @@ class ProductListView(ListView):
     
 class ProductDetailView(DetailView):
     model = Product
-    template_name = 'product_detail.html'
+    template_name = 'material/product_detail.html'
 
 class ProductCreateView(LoginRequiredMixin, CreateView):
     form_class = ProductForm
-    template_name = 'product_input.html'
+    template_name = 'material/product_input.html'
 
 class ProductUpdateView(UpdateView):
     model = Product
     form_class = ProductForm
-    template_name = 'product_edit.html'
+    template_name = 'material/product_edit.html'
 
 class ProductDeleteView(DeleteView):
     model = Product
-    template_name = 'product_delete.html'
+    template_name = 'material/product_delete.html'
     context_object_name = 'product_delete'
     success_url = reverse_lazy('product')
 
@@ -94,7 +94,7 @@ def get_shift(jam_isi):
 
 class HopperCreateView(LoginRequiredMixin, CreateView):
     form_class = HopperForm
-    template_name = 'hopper_fill.html'
+    template_name = 'material/hopper_fill.html'
 
     def form_valid(self, form):
         no_mesin = form.cleaned_data['no_mesin']
@@ -138,7 +138,7 @@ def ajax_fill_hopper_form(request):
 
 class HopperListView(ListView):
     model = HopperFillData
-    template_name = 'hopper_fill_data.html'
+    template_name = 'material/hopper_fill_data.html'
     context_object_name = 'hopper_fill_data_list'
     paginate_by = 50
     ordering = ['-id']
@@ -167,7 +167,7 @@ class HopperListView(ListView):
 class HopperUpdateView(UpdateView):
     form_class = HopperForm
     model = HopperFillData
-    template_name = 'hopper_fill_edit.html'
+    template_name = 'material/hopper_fill_edit.html'
 
     def form_valid(self, form):
         no_mesin = form.cleaned_data['no_mesin']
@@ -190,14 +190,14 @@ class HopperUpdateView(UpdateView):
 
 class HopperDeleteView(DeleteView):
     model = HopperFillData
-    template_name = 'hopper_fill_delete.html'
+    template_name = 'material/hopper_fill_delete.html'
     context_object_name = 'hopper_delete'
     success_url = reverse_lazy('hopper_fill_data')
 
 class ScrapCreateView(LoginRequiredMixin ,CreateView):
     form_class = ScrapForm
     model = Scrap
-    template_name = 'scrap_input.html'
+    template_name = 'material/scrap_input.html'
     
     def form_valid(self, form):
         tanggal = form.cleaned_data['tanggal']
@@ -213,7 +213,7 @@ class ScrapCreateView(LoginRequiredMixin ,CreateView):
 
 class ScrapListView(ListView):
     model = Scrap
-    template_name = 'scrap_list.html'
+    template_name = 'material/scrap_list.html'
     context_object_name = 'scrap_list'
     paginate_by = 50
     ordering = ['-id']
@@ -221,7 +221,7 @@ class ScrapListView(ListView):
 class ScrapUpdateView(UpdateView):
     form_class = ScrapForm
     model = Scrap
-    template_name = 'scrap_edit.html'
+    template_name = 'material/scrap_edit.html'
 
     def form_valid(self, form):
         tanggal = form.cleaned_data['tanggal']
@@ -237,7 +237,7 @@ class ScrapUpdateView(UpdateView):
 
 class ScrapDeleteView(DeleteView):
     model = Scrap
-    template_name = 'scrap_delete.html'
+    template_name = 'material/scrap_delete.html'
     context_object_name = 'scrap_delete'
     success_url = reverse_lazy('scrap_list')
 
@@ -566,7 +566,7 @@ def export_scrap_xlsx(request):
     return response
 
 class MaterialHopperSummary(TemplateView):
-    template_name = 'hopper_fill_summary.html'
+    template_name = 'material/hopper_fill_summary.html'
 
 def hopper_line_chart(request):
     if request.method == 'POST':
@@ -583,9 +583,6 @@ def hopper_line_chart(request):
         else:
             request_date_end = datetime.strptime(datetime.now(tz=tz).strftime('%Y-%m-%d'), '%Y-%m-%d')
         
-        labels = []
-        data_total_virgin = []
-        data_total_regrind = []
         date_list = []
         date_end = request_date_end.date()
         date_start = request_date_start.date()
@@ -593,10 +590,6 @@ def hopper_line_chart(request):
             d_between = date_start + timedelta(days=d)
             date_list.append(d_between)
     else:
-        labels = []
-        data_total_virgin = []
-        data_total_regrind = []
-
         lastmonth = datetime.now(tz=tz).date() - timedelta(days=30)
         today = datetime.now(tz=tz).date()
         date_list = []
@@ -604,15 +597,33 @@ def hopper_line_chart(request):
             d_between = lastmonth + timedelta(days=d)
             date_list.append(d_between)
 
+    labels = []
+    data_total_virgin = []
+    data_total_regrind = []
+    data_material_total = []
+    data_material_ideal = []
+
     for dates in date_list:
         labels.append(dates)
-        queryset = HopperFillData.objects.filter(tanggal=dates).values('pemakaian_virgin').aggregate(total_virgin=Sum('pemakaian_virgin'))
-        data_total_virgin.append(queryset['total_virgin'])
-        queryset = HopperFillData.objects.filter(tanggal=dates).values('pemakaian_regrind').aggregate(total_regrind=Sum('pemakaian_regrind'))
-        data_total_regrind.append(queryset['total_regrind'])
+        virgin = HopperFillData.objects.filter(tanggal=dates).values('pemakaian_virgin').aggregate(total_virgin=Sum('pemakaian_virgin'))
+        total_virgin = virgin['total_virgin']
+        data_total_virgin.append(total_virgin)
+        regrind = HopperFillData.objects.filter(tanggal=dates).values('pemakaian_regrind').aggregate(total_regrind=Sum('pemakaian_regrind'))
+        total_regrind = regrind['total_regrind']
+        data_total_regrind.append(total_regrind)
+        if total_virgin != None and total_regrind != None:
+            material_total = total_virgin+total_regrind
+            data_material_total.append(material_total)
+        else:
+            material_total = 0
+            data_material_total.append(material_total)
+        berat_ideal = EstimasiMaterialUsageCO.objects.filter(tanggal=dates).values('berat_target_output').aggregate(total_berat=Sum('berat_target_output'))
+        total_berat_ideal = berat_ideal['total_berat']
+        print(dates, material_total, total_berat_ideal)
+        data_material_ideal.append(total_berat_ideal)
 
     return JsonResponse(data={
-        'labels':labels, 'data_total_virgin':data_total_virgin, 'data_total_regrind':data_total_regrind, 
+        'labels':labels, 'data_total_virgin':data_total_virgin, 'data_total_regrind':data_total_regrind, 'data_material_total':data_material_total, 'data_material_ideal':data_material_ideal,
             })
 
 def hopper_bar_chart(request):

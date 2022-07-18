@@ -9,7 +9,15 @@
     {% csrf_token %} 
     {{form|crispy}}
     <button type="submit" class="btn btn-primary">Log In</button>
-    <button type="" class="btn btn-primary" onclick="window.location.href='{% url 'password_reset' %}';">Forgot Password</button>
+    <button type="button" class="btn btn-primary" id="forgot_password">Forgot Password</button>
 </form> 
 
 {% endblock content %}
+
+{% block javascript %}
+<script>
+    $('#forgot_password').click(function(){
+        window.location.href = "{% url 'password_reset' %}";
+    })
+</script>
+{% endblock javascript %}

@@ -89,3 +89,9 @@ class Scrap(models.Model):
     def get_absolute_url(self):
         return reverse('scrap_list')
     
+class EstimasiMaterialUsageCO(models.Model):
+    tanggal_co = models.DateField('Tanggal Co', blank=True, null=True)
+    tanggal_operasi = models.DateField('Tanggal',blank=True, null=True)
+    part_no = models.CharField('Part No', max_length=255, blank=True, null=True)
+    target_output = models.PositiveIntegerField('Target Output', blank=True, null=True)
+    berat_target_output = models.DecimalField('Berat Target Output', max_digits=200, decimal_places=2, blank=True, null=True)

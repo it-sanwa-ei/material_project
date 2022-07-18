@@ -1,0 +1,25 @@
+{% extends 'base.html' %} 
+
+{% block title %}PPIC{% endblock title %} 
+
+{% block style %}
+{% endblock style %}
+
+{% block header %}PPIC{% endblock header %}
+
+{% block content %} 
+{% if user.is_authenticated %}
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); padding: 25px">
+    {% if user.is_staff %}
+    <div style="text-align: center; margin: 15px;">
+        <p><a href="{% url 'change_order_list' %}"><i class="fa-solid fa-pen-ruler" style="font-size: 200px;"></i></a></p>
+        <p><a href="{% url 'change_order_list' %}" style="text-decoration: none;">List CO</a></p>
+    </div>
+    {% endif %}
+</div>
+{% else %} 
+<meta http-equiv="refresh" content="0; {% url 'login' %}" />
+{% endif %}
+
+{% endblock content %}

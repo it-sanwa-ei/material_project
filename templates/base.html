@@ -140,10 +140,10 @@
                           <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
                         </ul>
                       </div>
-                      <div class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar" id="menu6">
-                        <a href="#submenu6" data-bs-toggle="collapse" class="text-decoration-none" aria-hidden="true"><i class="fa-regular fa-square-plus"></i> Option &blacktriangledown;</a>
-                        <ul  class="collapse list-unstyled" id="submenu6" data-bs-parent="#sidebar"><a class="text-decoration-none" href="#"></a></li>
-                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
+                      <div class="list-group-item border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar" id="ppicmenu">
+                        <a href="#ppicsubmenu" data-bs-toggle="collapse" class="text-decoration-none" aria-hidden="true"><i class="fa-solid fa-compass-drafting"></i> PPIC &blacktriangledown;</a>
+                        <ul  class="collapse list-unstyled" id="ppicsubmenu" data-bs-parent="#sidebar"><a class="text-decoration-none" href="#"></a></li>
+                          <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="{% url 'change_order_list'%}"><i class="fa-solid fa-pen-ruler col-1"></i> <span class="col-2"> List CO </span></a></li>
                           <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
                           <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
                           <li class="w-100 p-1"><a class="px-3" style="text-decoration:none;" href="#"> <i class="fa-regular fa-square-plus"></i> Option </a></li>
@@ -168,14 +168,13 @@
               <div class="page-header pt-3 text-center">
                   <h2>{% block header %}{% endblock header %}</h2>
               </div>
-              <p class="lead">{% block note %}{% endblock note %}</p>
+              <div class="lead">
+                {% block note %}{% endblock note %}</div>
               <hr>
               <div class="row">
                   <div class="col-12">
-                    <main>
-                      {% block content %}
-                      {% endblock content %}
-                    </main>
+                    {% block content %}
+                    {% endblock content %}
                   </div>
               </div>
               <hr>

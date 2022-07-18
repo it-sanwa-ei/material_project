@@ -52,10 +52,13 @@ INSTALLED_APPS = [
     'django_tables2',
 
     #custom app
+    'masterdata.apps.MasterdataConfig',
     'material.apps.MaterialConfig',
     'account.apps.AccountConfig',
     'pulling.apps.PullingConfig',
     'guest.apps.GuestConfig',
+    'ppic.apps.PpicConfig',
+    
 
     
 ]

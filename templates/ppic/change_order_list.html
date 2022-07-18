@@ -1,0 +1,155 @@
+{% extends 'base.html' %} 
+{% load render_table from django_tables2 %}
+
+{% block title %} CO List {% endblock title %}
+
+{% block style %} 
+<style>
+  .co_list_table_style th{
+      border: 1px solid white; 
+      background-color: rgb(100, 100, 255); 
+      border-radius: 5px;
+  }
+  .co_list_table_style th a {
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+      font-size: large;
+  }
+  .co_list_table_style td{
+      border: 1px solid white; 
+      background-color: lightblue; 
+      border-radius: 5px;
+      padding-left: 5px;
+      height: 50px;
+  }
+</style>
+{% endblock style %}
+
+{% block header %} CO List {% endblock header %}
+
+{% block note %}
+<hr>
+<div class="container">
+  <div class="ms-2 mb-1">
+    Please import Excel file (.xlsx) with co list data following this <a href="https://docs.google.com/spreadsheets/d/1tjbtTB29x0d4qrZq6xumOLQqs18BPudt/export?format=xlsx&id=1tjbtTB29x0d4qrZq6xumOLQqs18BPudt">template</a>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col-md-11">
+      <form method="post" action="{% url 'import_change_order_xlsx' %}" enctype="multipart/form-data">
+        <div class="form-group row pb-1">
+          {% csrf_token %}
+          <div class="form-group col-md-3">
+            <label class="ms-2 mb-1">Select Date</label>
+            <input name="select_co_date" id="select_co_date" class="form-control mr-sm-2" type="date" aria-label="Select Date">
+          </div>
+          <div class="form-group col-md-6">
+            <label class="ms-2 mb-1" for="import_change_order_xlsx">Import CO List (.xlsx)</label>
+            <input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" name="import_change_order_xlsx" id="import_change_order_xlsx" class="form-control">
+          </div>
+          <div class="form-group col-md-3 text-end justify-content-end align-self-end align-content-end align-items-end">
+            <input type="submit" value="Import CO List (.xlsx)" class="btn btn-success form-control">
+          </div>
+        </div>  
+      </form>
+    </div>
+    <div class="col-md-1 mb-1 text-end justify-content-end align-self-end align-content-end align-items-end">
+      <form method="post" action="{% url 'delete_co' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <button type="submit" name="delete_co" id="delete_co" class="btn btn-danger">X</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock note %}
+
+{% block content %}
+<div class="container">
+  <div class="mt-2 mb-3 row">
+    <div class="col-md-8">
+      <form class="form-group" action="{% url 'change_order_list' %}" method="get" id="search_form">
+        <label class="ps-2 mb-1">Search CO</label>
+        <input class="form-control" name="co_search_date_input" id="co_search_date_input" type="date" style="width: 50%;">
+      </form>
+    </div>
+    <div class="col-md-4 text-end">
+      <form>
+        <label class="pe-2 mb-1">Tanggal CO</label>
+        <input class="form-control text-end" type="text" readonly id="show_tanggal_co">
+      </form>
+    </div>
+  </div>
+  {% if change_order_table %}
+    {% render_table change_order_table %}
+  {% endif %}
+</div>
+{% endblock content %}
+
+{% block footer %}
+{% endblock footer %}
+
+{% block javascript %}
+
+<script>
+  var delete_co = document.getElementById('delete_co');
+  var tanggal_co = document.getElementById('select_co_date').value;
+  delete_co.value = tanggal_co;
+  $('#select_co_date').change(function(){
+    tanggal_co = $('#select_co_date').val();
+    $('#delete_co').val(tanggal_co).trigger('change')
+  })
+  
+</script>
+
+<script>
+  $('#select_co_date').change(function(){
+    var tanggal_co = $('#select_co_date').val();
+    $('#co_date_search').val(tanggal_co).trigger('change');
+  })
+</script>
+
+<script>
+  $('#co_search_date_input').change(function(){
+    $('#search_form').submit()
+  })
+</script>
+
+<script>
+  $(document).ready(function(){
+    var url = window.location.href;
+    console.log(url)
+    try{
+    var url_array = url.split('=');
+    var co_date_ymd = url_array[1];
+    console.log(co_date_ymd)
+    var co_date_ymd_array = co_date_ymd.split('-')
+    var co_date = co_date_ymd_array[2].concat('-', co_date_ymd_array[1], '-', co_date_ymd_array[0])
+    console.log(co_date)
+    $('#show_tanggal_co').val(co_date).trigger('change')
+    } catch (error){
+    }
+    
+  })
+</script>
+
+<script>
+  $(document).ready(function(){
+    $('#select_co_date').change(function(){
+      var date = $('#select_co_date').val()
+      var date_split = date.split('-')
+      var id_date = date_split[2].concat('-', date_split[1], '-', date_split[0])
+      $.ajax({
+        method: 'GET',
+        url:"{% url 'check_co' %}",
+        success:function(data){
+          if(data){
+            alert('Tanggal ' + id_date + ' sudah ada List CO.')
+          }
+        }
+      })
+    })
+  })
+</script>
+{% endblock javascript %}

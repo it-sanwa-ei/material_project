@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} Material Hopper Summary {% endblock title %}
+
+{% block header %} Material Hopper Summary {% endblock header %}
+
+{% block note %}
+<hr>
+<div class="container">
+    <form method="post" id="show-graph-form">
+        {% csrf_token %}
+        <div class="form-group row pb-1">
+            <div class="form-group col-md-4">
+                <label for="request_date_start">From</label>
+                <input type="date" name="request_date_start" id="request_date_start" class="form-control">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="request_date_end">To</label>
+                <input type="date" name="request_date_end" id="request_date_end" class="form-control">
+            </div>
+            <div class="form-group col-md-4">
+                <label></label>
+                <input id="show-graph-button" type="submit" value="Show Graph" class="btn btn-primary form-control">
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock note %}
+
+{% block content %} 
+<div class="container mt-5">
+    <div class="mb-5 pb-5">
+        <h4 class="text-center mb-3">Virgin Usage vs Regrind Usage</h4>
+        <canvas style="margin-left: auto; margin-right: auto;" width="500" height="500" id="hopper-pie" data-url="{% url 'ajax_hopper_pie_chart' %}"></canvas>
+    </div>
+    <div class="mb-5 pb-5">
+        <h4 class="text-center mb-3">Material Usage by day</h4>
+        <canvas id="hopper-line" data-url="{% url 'ajax_hopper_line_chart' %}"></canvas>
+    </div>
+    <div class="mb-5 pb-5">
+        <h4 class="text-center mb-3">Material Usage by type</h4>
+        <canvas id="hopper-bar" data-url="{% url 'ajax_hopper_bar_chart' %}"></canvas>
+    </div>
+</div>
+
+
+<script>
+    var $hopperLine = $('#hopper-line');
+    var hopper_line
+    var ctxl = $hopperLine[0].getContext("2d");
+    $(document).ready(function(){
+        $.ajax({
+            url: $hopperLine.data("url"),
+            success: function(data){
+                hopper_line = new Chart(ctxl, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Actual Material Usage',
+                            backgroundColor: 'rgb(54, 162, 235)',
+                            data: data.data_material_total
+                        }, {
+                            label: 'Material Usage based on CO',
+                            backgroundColor: 'rgb(255, 99, 132)',
+                            data: data.data_material_ideal
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Hopper Chart'
+                        }
+                    }
+                })
+            }
+        })
+    })
+    $(document).ready(function(){
+        $("#show-graph-form").submit(function(){
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                data: form.serialize(),
+                url: "{% url 'ajax_hopper_line_chart' %}",
+                success: function(response){
+                    if(hopper_line){hopper_line.destroy()};
+                    console.log(response)
+                    hopper_line = new Chart(ctxl, {
+                        type: 'bar',
+                        data: {
+                            labels: response.labels,
+                            datasets: [{
+                                label: 'Actual Material Usage',
+                                backgroundColor: 'rgb(54, 162, 235)',
+                                data: response.data_material_total
+                            }, {
+                                label: 'Material Usage based on CO',
+                                backgroundColor: 'rgb(255, 99, 132)',
+                                data: response.data_material_ideal
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Hopper Chart'
+                            }
+                        }
+                    })
+            
+            }
+            
+        })
+        return false;
+    })
+    })
+    
+</script>
+
+<script>
+    var $hopperBar = $('#hopper-bar');
+    var hopper_bar
+    var ctxb = $hopperBar[0].getContext("2d");
+    $(document).ready(function(){
+        $.ajax({
+            url: $hopperBar.data("url"),
+            success: function(data){
+                hopper_bar = new Chart(ctxb, {
+                    type: 'bar',
+                    data: {
+                        labels: data.data_material,
+                        datasets: [{
+                            label: 'Total Virgin Usage',
+                            backgroundColor: 'rgb(54, 162, 235)',
+                            data: data.data_virgin
+                        },{
+                            label: 'Total Regrind Usage',
+                            backgroundColor: 'rgb(255, 99, 132)',
+                            data: data.data_regrind
+                        }]
+                    },
+                    options: {
+                            responsive: true,
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Hopper Chart'
+                            }
+                    }
+                })
+            }
+        })
+    })
+    
+    $(document).ready(function(){
+        $("#show-graph-form").submit(function(){
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                data: form.serialize(),
+                url: "{% url 'ajax_hopper_bar_chart' %}",
+                success: function(response){
+                    if(hopper_bar){hopper_bar.destroy()};
+                    console.log(response)
+                    hopper_bar = new Chart(ctxb, {
+                        type: 'bar',
+                        data: {
+                            labels: response.data_material,
+                            datasets: [{
+                                label: 'Total Virgin Usage',
+                                backgroundColor: 'rgb(54, 162, 235)',
+                                data: response.data_virgin
+                            },{
+                                label: 'Total Regrind Usage',
+                                backgroundColor: 'rgb(255, 99, 132)',
+                                data: response.data_regrind
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Hopper Chart'
+                            }
+                        }
+                    })
+            }})
+            
+        })
+        return false;
+    })    
+</script>
+
+<script>
+    var $hopperPie = $('#hopper-pie');
+    var hopper_pie
+    var ctxp = $hopperPie[0].getContext("2d");
+    $(document).ready(function(){
+        $.ajax({
+            url: $hopperPie.data("url"),
+            success: function(data){
+                hopper_pie = new Chart(ctxp, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Virgin', 'Regrind'],
+                        datasets: [{
+                            label: 'Virgin Usage vs Regrind Usage',
+                            backgroundColor: ['rgb(54, 162, 235)','rgb(255, 99, 132)'],
+                            data: [data.data_virgin, data.data_regrind]
+                        },]
+                    },
+                    options: {
+                        responsive: false,
+                        plugins:{
+                            legend: {
+                                display: true,
+                            },
+                        },
+                        title: {
+                            display: true,
+                            text: 'Hopper Chart'
+                        }
+                    }
+                })
+            }
+        })
+    })
+    
+
+
+
+    $(document).ready(function(){
+        $("#show-graph-form").submit(function(){
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                data: form.serialize(),
+                url: "{% url 'ajax_hopper_pie_chart' %}",
+                success: function(response){
+                    if(hopper_pie){hopper_pie.destroy()};
+                    console.log(response)
+                    hopper_pie = new Chart(ctxp, {
+                        type: 'pie',
+                        data: {
+                        labels: ['Virgin', 'Regrind'],
+                        datasets: [{
+                            label: 'Virgin Usage vs Regrind Usage',
+                            backgroundColor: ['rgb(54, 162, 235)','rgb(255, 99, 132)'],
+                            data: [response.data_virgin, response.data_regrind]
+                            },]
+                        },
+                        options: {
+                            responsive: false,
+                            plugins:{
+                            legend: {
+                                display: true,
+                            },
+                            },
+                            title: {
+                                display: true,
+                                text: 'Hopper Chart'
+                            }
+                        }
+                    })
+                }})
+        return false;
+        })
+    })
+    
+</script>
+
+{% endblock content %}

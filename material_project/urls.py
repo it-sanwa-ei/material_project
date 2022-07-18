@@ -22,8 +22,10 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     path('account/', include('account.urls')),
     path('account/', include('django.contrib.auth.urls')),
+    path('masterdata/', include('masterdata.urls')),
     path('material/', include('material.urls')),
     path('pulling/', include('pulling.urls')),
     path('guest/', include('guest.urls')),
+    path('ppic/', include('ppic.urls')),
     path('select2/', include('django_select2.urls')),
 ]

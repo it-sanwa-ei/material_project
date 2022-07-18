@@ -1,0 +1,64 @@
+{% extends 'base.html' %} 
+{% load render_table from django_tables2 %}
+
+{% block title %} Customer List {% endblock title %}
+
+{% block style %} 
+<style>
+    .md_customer th{
+        border: 1px solid white; 
+        background-color: rgb(100, 100, 255); 
+        border-radius: 5px;
+    }
+    .md_customer th a {
+        font-weight: bold;
+        color: white;
+        text-decoration: none;
+        padding-left: 5px;
+        font-size: large;
+    }
+    .md_customer td{
+        border: 1px solid white; 
+        background-color: lightblue; 
+        border-radius: 5px;
+        padding-left: 5px;
+        height: 50px;
+    }
+</style>
+{% endblock style %}
+
+{% block header %} Customer List {% endblock header %}
+
+{% block note %}
+<hr>
+<div class="ms-2 mb-1">
+    Please import Excel file (.xlsx) with new customer data following this <a href="https://docs.google.com/spreadsheets/d/1eicj_JVb_BxssIAWQDir4AU0_FSSOJ4r/export?format=xlsx&id=1eicj_JVb_BxssIAWQDir4AU0_FSSOJ4r">template</a>
+  </div>
+  <br>
+
+  <div>
+    <form method="post" action="{% url 'import_md_customer_xlsx' %}" enctype="multipart/form-data">
+      <div class="form-group row pb-1">
+        {% csrf_token %}
+        <div class="form-group col-md-9">
+          <label class="ms-2 mb-1" for="import_md_customer_xlsx">Import New Customer (.xlsx)</label>
+          <input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" name="import_md_customer_xlsx" id="import_md_customer_xlsx" class="form-control">
+        </div>
+        <div class="form-group col-md-3 text-end">
+          <label></label>
+          <input type="submit" value="Import New Customers (.xlsx)" class="btn btn-success form-control">
+        </div>
+      </div>  
+    </form>
+  </div>
+{% endblock note %}
+
+
+{% block content %} 
+    {% if md_customer_table %}
+        {% render_table md_customer_table %}
+    {% endif %}
+{% endblock content %}
+
+{% block footer %}
+{% endblock footer %}

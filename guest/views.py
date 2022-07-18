@@ -9,35 +9,35 @@ from django.contrib import messages
 from .forms import ContactUsForm
 
 class GuestHomeTemplateView(TemplateView):
-    template_name='guest_home.html'
+    template_name='guest/guest_home.html'
 
 class AboutUsTemplateView(TemplateView):
-    template_name='guest_about_us.html'
+    template_name='guest/guest_about_us.html'
 
 class CompanyStructureTemplateView(TemplateView):
-    template_name='guest_company_structure.html'
+    template_name='guest/guest_company_structure.html'
 
 class ProductsTemplateView(TemplateView):
-    template_name='guest_products.html'
+    template_name='guest/guest_products.html'
 
 class InjectionMoldingTemplateView(TemplateView):
-    template_name='guest_injection_molding.html'
+    template_name='guest/guest_injection_molding.html'
 
 class MoldMakingTemplateView(TemplateView):
-    template_name='guest_mold_making.html'
+    template_name='guest/guest_mold_making.html'
 
 class MoldMaintenanceTemplateView(TemplateView):
-    template_name='guest_mold_maintenance.html'
+    template_name='guest/guest_mold_maintenance.html'
 
 class QualityControlTemplateView(TemplateView):
-    template_name='guest_quality_control.html'
+    template_name='guest/guest_quality_control.html'
 
 class CareerTemplateView(TemplateView):
-    template_name='guest_career.html'
+    template_name='guest/guest_career.html'
 
 class ContactUsTemplateView(FormView):
     form_class = ContactUsForm
-    template_name='guest_contact_us.html'
+    template_name='guest/guest_contact_us.html'
 
 def guest_send_email(request):
     if request.method == 'POST':
@@ -64,4 +64,4 @@ def guest_send_email(request):
         reverse_lazy('guest_contact_us')
 
 class GuestSendMailSuccessTemplateView(TemplateView):
-    template_name = 'guest_send_mail_success.html'
+    template_name = 'guest/guest_send_mail_success.html'

@@ -56,12 +56,12 @@ from .forms import TempScanInForm, TempScanOutForm
 tz = pytz.timezone('Asia/Jakarta')
 
 class PullingHomeView(TemplateView):
-    template_name = 'pulling_home.html'
+    template_name = 'pulling/pulling_home.html'
 
 class PullingCustomerCreateView(CreateView):
     model = PullingCustomer
     form_class = PullingCustomerForm
-    template_name = 'pulling_customer_input.html'
+    template_name = 'pulling/pulling_customer_input.html'
 
     def form_valid(self, form):
         address1 = form.cleaned_data['address1']
@@ -73,7 +73,7 @@ class PullingCustomerCreateView(CreateView):
 
 class PullingCustomerListView(SingleTableView):
     model = PullingCustomer
-    template_name = 'pulling_customer_list.html'
+    template_name = 'pulling/pulling_customer_list.html'
     context_table_name = 'pulling_customer_table'
     table_class = PullingCustomerTable
 
@@ -81,7 +81,7 @@ class PullingCustomerUpdateView(UpdateView):
     model = PullingCustomer
     form_class = PullingCustomerForm
     context_object_name = 'pulling_customer_edit'
-    template_name = 'pulling_customer_update.html'
+    template_name = 'pulling/pulling_customer_update.html'
 
     def get_initial(self):
         initial = super().get_initial()
@@ -119,17 +119,17 @@ class PullingCustomerUpdateView(UpdateView):
 
 class PullingCustomerDeleteView(DeleteView):
     model = PullingCustomer
-    template_name = 'pulling_customer_delete.html'
+    template_name = 'pulling/pulling_customer_delete.html'
     context_object_name = 'pulling_customer_delete'
     success_url = reverse_lazy('pulling_customer_list')
 
 class PullingProductCreateView(CreateView):
     form_class = PullingProductForm
-    template_name = 'pulling_product_input.html'
+    template_name = 'pulling/pulling_product_input.html'
 
 class PullingProductListView(SingleTableView):
     model = PullingProduct
-    template_name = 'pulling_product_list.html'
+    template_name = 'pulling/pulling_product_list.html'
     context_table_name = 'pulling_product_table'
     table_class = PullingProductTable
 
@@ -144,11 +144,11 @@ class PullingProductUpdateView(UpdateView):
     model = PullingProduct
     form_class = PullingProductForm
     context_object_name = 'pulling_product_edit'
-    template_name = 'pulling_product_update.html'
+    template_name = 'pulling/pulling_product_update.html'
 
 class PullingProductDeleteView(DeleteView):
     model = PullingProduct
-    template_name = 'pulling_product_delete.html'
+    template_name = 'pulling/pulling_product_delete.html'
     context_object_name = 'pulling_product_delete'
     success_url = reverse_lazy('pulling_product_list')
 
@@ -263,7 +263,7 @@ def import_pulling_product_xlsx(request):
     
 class PullingLabelFormView(FormView):
     form_class = PullingLabelForm
-    template_name = 'pulling_label_input.html'
+    template_name = 'pulling/pulling_label_input.html'
 
 def pulling_label_form_ajax(request):
     part_id_customer = request.GET.get('part_id_customer', None)
@@ -528,7 +528,7 @@ def pulling_label_pdf(request):
 
 class PullingFinishGoodItemListView(SingleTableView):
     model = PullingFinishGoodItem
-    template_name = 'pulling_finish_good_list.html'
+    template_name = 'pulling/pulling_finish_good_list.html'
     context_table_name = 'pulling_finish_good_table'
     table_class = PullingFinishGoodItemTable
     ordering = ['-date_time']
@@ -538,7 +538,7 @@ class PullingFinishGoodItemListView(SingleTableView):
 #depracated#
 class PullingLabelScanInView(FormView):
     form_class = PullingLabelScanInForm
-    template_name = 'pulling_scan_in.html'
+    template_name = 'pulling/pulling_scan_in.html'
 #depracated#
 
 def pulling_label_in_decode(request):
@@ -589,7 +589,7 @@ def pulling_label_in_decode(request):
 
 class TempScanInListView(SingleTableView):
     model = TempPullingScanInModel
-    template_name = 'pulling_scan_in.html'
+    template_name = 'pulling/pulling_scan_in.html'
     context_table_name = 'pulling_temp_in_table'
     table_class = TempScanInTable
     ordering = ['-date_time']
@@ -598,7 +598,7 @@ class TempScanInUpdateView(UpdateView):
     model = TempPullingScanInModel
     form_class = TempScanInForm
     context_object_name = 'pulling_temp_in_update'
-    template_name = 'pulling_temp_in_update.html'
+    template_name = 'pulling/pulling_temp_in_update.html'
     success_url = reverse_lazy('temp_scan_in')
 
     def form_valid(self, form):
@@ -616,7 +616,7 @@ class TempScanInUpdateView(UpdateView):
 
 class TempScanInDeleteView(DeleteView):
     model = TempPullingScanInModel
-    template_name = 'pulling_temp_in_delete.html'
+    template_name = 'pulling/pulling_temp_in_delete.html'
     context_object_name = 'pulling_temp_in_delete'
     success_url = reverse_lazy('temp_scan_in')
 
@@ -681,7 +681,7 @@ def scan_in_warehouse_db(request):
 
 class ScanInListView(SingleTableView):
     model = ScanInModel
-    template_name = 'pulling_in_list.html'
+    template_name = 'pulling/pulling_in_list.html'
     table_class = ScanInTable
     context_table_name = 'scan_in_table'
     ordering = ['-date_time']
@@ -793,7 +793,7 @@ def export_scan_in_xlsx(request):
 #depracated#
 class PullingLabelScanOutView(FormView):
     form_class = PullingLabelScanOutForm
-    template_name = 'pulling_scan_out.html'
+    template_name = 'pulling/pulling_scan_out.html'
 #depracated#
 
 def pulling_label_out_decode(request):
@@ -840,7 +840,7 @@ def pulling_label_out_decode(request):
 
 class TempScanOutListView(SingleTableView):
     model = TempPullingScanOutModel
-    template_name = 'pulling_scan_out.html'
+    template_name = 'pulling/pulling_scan_out.html'
     context_table_name = 'pulling_temp_out_table'
     table_class = TempScanOutTable
     ordering = ['-date_time']
@@ -850,7 +850,7 @@ class TempScanOutUpdateView(UpdateView):
     model = TempPullingScanOutModel
     form_class = TempScanOutForm
     context_object_name = 'pulling_temp_out_update'
-    template_name = 'pulling_temp_out_update.html'
+    template_name = 'pulling/pulling_temp_out_update.html'
     success_url = reverse_lazy('temp_scan_out')
 
     def get_initial(self):
@@ -886,7 +886,7 @@ class TempScanOutUpdateView(UpdateView):
 
 class TempScanOutDeleteView(DeleteView):
     model = TempPullingScanOutModel
-    template_name = 'pulling_temp_out_delete.html'
+    template_name = 'pulling/pulling_temp_out_delete.html'
     context_object_name = 'pulling_temp_out_delete'
     success_url = reverse_lazy('temp_scan_out')
 
@@ -950,7 +950,7 @@ def scan_out_warehouse_db(request):
 
 class ScanOutListView(SingleTableView):
     model = ScanOutModel
-    template_name = 'pulling_out_list.html'
+    template_name = 'pulling/pulling_out_list.html'
     table_class = ScanOutTable
     context_table_name = 'scan_out_table'
     ordering = ['-date_time']
@@ -1060,7 +1060,7 @@ def export_scan_out_xlsx(request):
 
 class FinishGoodStockListView(SingleTableView):
     model = FinishGoodStock
-    template_name = 'pulling_finish_good_stock.html'
+    template_name = 'pulling/pulling_finish_good_stock.html'
     context_table_name = 'finish_good_stock_table'
     table_class = FinishGoodStockTable  
 

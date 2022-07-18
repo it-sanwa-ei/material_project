@@ -1,0 +1,30 @@
+{% extends 'base.html' %} 
+
+{% block title %} Delete Product - Pulling {% endblock title %}
+
+{% block header %} Delete Product - Pulling {% endblock header %}
+{% block content %} 
+
+<div class="container">
+    <form action="", method="post">
+        {% csrf_token %} 
+        <p>Delete the following product data</p>
+        <div class="container">
+            <strong><p>Part ID Internal : {{md_product_delete.part_id_internal}}</p></strong>
+            <strong><p>Part ID Customer : {{md_product_delete.part_id_customer}}</p></strong>
+            <strong><p>Customer : {{md_product_delete.customer.name}}</p></strong>
+            <strong><p>Part Name : {{md_product_delete.part_name}}</p></strong>
+            <strong><p>Material : {{md_product_delete.material}}</p></strong>
+            <strong><p>Rack : {{md_product_delete.rack}}</p></strong>
+            <strong><p>Bin Quantity : {{md_product_delete.bin_quantity}} pcs</p></strong>
+            <strong><p>Packaging Quantity : {{md_product_delete.packaging_quantity}} pcs</p></strong>
+            <strong><p>Full Bin Quantity : {{md_product_delete.full_bin_quantity}} pcs</p></strong>
+        </div>
+        <p>Confirm ?</p>
+        <input type="submit" value="Yes" class="btn btn-primary" style="width: 5em;"/>
+        <input type="button" value="No" class="btn btn-secondary" onclick="history.back()" style="width: 5em;">
+    </form>
+</div>
+<br>
+
+{% endblock content %}
