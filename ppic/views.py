@@ -81,23 +81,26 @@ def import_change_order_xlsx(request):
                     change_order.prioritas = row[13].value
                     change_order.material_percentage = int(row[14].value * 100)
 
-                    for date in daterange(change_order.date_co, change_order.estimasi_selesai.date()):
+                    if change_order.part_id_customer != None and change_order.jumlah_produksi != None:
+                        change_order_list.append(change_order)
+
+                    for dr in daterange(change_order.date_co, change_order.estimasi_selesai.date()):
                         emu_co.tanggal_co = change_order.date_co
-                        emu_co.tanggal_operasi = date
+                        emu_co.tanggal_operasi = dr
+                        print(emu_co.tanggal_operasi)
                         emu_co.part_no = change_order.part_id_customer
                         emu_co.target_output = change_order.jumlah_produksi / count_days(change_order.date_co, change_order.estimasi_selesai.date())
                         emu_co.virgin_per_day= change_order.virgin / count_days(change_order.date_co, change_order.estimasi_selesai.date())
                         emu_co.regrind_per_day = change_order.regrind / count_days(change_order.date_co, change_order.estimasi_selesai.date())
                         emu_co.total_berat_material = emu_co.virgin_per_day + emu_co.regrind_per_day
                         if emu_co.tanggal_co != None and emu_co.part_no != None and emu_co.virgin_per_day != None and emu_co.regrind_per_day != None:
-                            emu_list.append(emu_co)
+                            emu_co.save()
+                            continue
 
-                    if change_order.part_id_customer != None and change_order.jumlah_produksi != None:
-                        change_order_list.append(change_order)
-                        
+                    
+            print(emu_list)
             try:
                 ChangeOrder.objects.bulk_create(change_order_list)
-                EstimasiMaterialUsageCO.objects.bulk_create(emu_list)
                 wb.close()
                 fs.delete(file)
 
