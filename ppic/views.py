@@ -62,7 +62,6 @@ def import_change_order_xlsx(request):
             for row in ws.iter_rows(min_row=2):
                 if (row[1].value != None) and (row[3].value != None) and (row[8].value != None):
                     change_order = ChangeOrder()
-                    emu_co = EstimasiMaterialUsageCO()
                     change_order.date_co = datetime.strptime(request_date, '%Y-%m-%d').date()
                     change_order.customer = row[0].value
                     change_order.part_id_customer = row[1].value
@@ -81,10 +80,9 @@ def import_change_order_xlsx(request):
                     change_order.prioritas = row[13].value
                     change_order.material_percentage = int(row[14].value * 100)
 
-                    if change_order.part_id_customer != None and change_order.jumlah_produksi != None:
-                        change_order_list.append(change_order)
 
                     for dr in daterange(change_order.date_co, change_order.estimasi_selesai.date()):
+                        emu_co = EstimasiMaterialUsageCO()
                         emu_co.tanggal_co = change_order.date_co
                         emu_co.tanggal_operasi = dr
                         print(emu_co.tanggal_operasi)
@@ -93,9 +91,10 @@ def import_change_order_xlsx(request):
                         emu_co.virgin_per_day= change_order.virgin / count_days(change_order.date_co, change_order.estimasi_selesai.date())
                         emu_co.regrind_per_day = change_order.regrind / count_days(change_order.date_co, change_order.estimasi_selesai.date())
                         emu_co.total_berat_material = emu_co.virgin_per_day + emu_co.regrind_per_day
-                        if emu_co.tanggal_co != None and emu_co.part_no != None and emu_co.virgin_per_day != None and emu_co.regrind_per_day != None:
-                            emu_co.save()
-                            continue
+                        emu_co.save()
+
+                    if change_order.part_id_customer != None and change_order.jumlah_produksi != None:
+                        change_order_list.append(change_order)
 
                     
             print(emu_list)
