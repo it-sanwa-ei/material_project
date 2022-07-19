@@ -56,18 +56,24 @@
             url: $hopperLine.data("url"),
             success: function(data){
                 hopper_line = new Chart(ctxl, {
-                    type: 'bar',
                     data: {
                         labels: data.labels,
                         datasets: [{
-                            label: 'Actual Material Usage',
+                            type: 'line',
+                            label: 'Virgin Usage - Actual',
+                            backgroundColor: 'rgb(85, 255, 25)',
+                            data: data.data_total_virgin
+                        },{
+                            type: 'bar',
+                            label: 'Total Material Usage - Actual',
                             backgroundColor: 'rgb(54, 162, 235)',
                             data: data.data_material_total
                         }, {
-                            label: 'Material Usage based on CO',
+                            type: 'bar',
+                            label: 'Total Material Usage based on CO',
                             backgroundColor: 'rgb(255, 99, 132)',
                             data: data.data_material_ideal
-                        }]
+                        }, ]
                     },
                     options: {
                         responsive: true,
@@ -79,7 +85,7 @@
                             text: 'Hopper Chart'
                         }
                     }
-                })
+                });
             }
         })
     })
@@ -94,18 +100,24 @@
                     if(hopper_line){hopper_line.destroy()};
                     console.log(response)
                     hopper_line = new Chart(ctxl, {
-                        type: 'bar',
                         data: {
                             labels: response.labels,
                             datasets: [{
-                                label: 'Actual Material Usage',
+                                type: 'line',
+                                label: 'Virgin Usage - Actual',
+                                backgroundColor: 'rgb(85, 255, 25)',
+                                data: response.data_total_virgin
+                            },{
+                                type: 'bar',
+                                label: 'Total Material Usage - Actual',
                                 backgroundColor: 'rgb(54, 162, 235)',
                                 data: response.data_material_total
                             }, {
-                                label: 'Material Usage based on CO',
+                                type: 'bar',
+                                label: 'Total Material Usage based on CO',
                                 backgroundColor: 'rgb(255, 99, 132)',
                                 data: response.data_material_ideal
-                            }]
+                            }, ]
                         },
                         options: {
                             responsive: true,
