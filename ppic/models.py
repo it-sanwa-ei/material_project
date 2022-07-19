@@ -21,3 +21,7 @@ class ChangeOrder(models.Model):
     no_mesin = models.CharField(verbose_name='M/C', max_length=255, blank=True, null=True)
     prioritas = models.PositiveIntegerField(verbose_name='Prioritas', blank=True, null=True)
     material_percentage = models.IntegerField(verbose_name='%', blank=True, null=True)
+
+    def __str__(self):
+        co = '{0.date_co}'
+        return co.format(self)
