@@ -30,13 +30,15 @@
 
 {% block content %} 
 <div class="container mt-5">
-    <div class="mb-5 pb-5">
-        <h4 class="text-center mb-3">Virgin Usage vs Regrind Usage</h4>
-        <canvas style="margin-left: auto; margin-right: auto;" width="500" height="500" id="hopper-pie" data-url="{% url 'ajax_hopper_pie_chart' %}"></canvas>
-    </div>
-    <div class="mb-5 pb-5">
-        <h4 class="text-center mb-3">Material Usage by day</h4>
-        <canvas id="hopper-line" data-url="{% url 'ajax_hopper_line_chart' %}"></canvas>
+    <div class="row">
+        <div class="mb-5 pb-5 col-md-4">
+            <h4 class="text-center mb-3">Virgin Usage vs Regrind Usage</h4>
+            <canvas id="hopper-pie" data-url="{% url 'ajax_hopper_pie_chart' %}"></canvas>
+        </div>
+        <div class="mb-5 pb-5 col-md-8">
+            <h4 class="text-center mb-3">Material Usage by day</h4>
+            <canvas id="hopper-line" data-url="{% url 'ajax_hopper_line_chart' %}"></canvas>
+        </div>
     </div>
     <div class="mb-5 pb-5">
         <h4 class="text-center mb-3">Material Usage by type</h4>
@@ -224,7 +226,7 @@
                         },]
                     },
                     options: {
-                        responsive: false,
+                        responsive: true,
                         plugins:{
                             legend: {
                                 display: true,
@@ -264,7 +266,7 @@
                             },]
                         },
                         options: {
-                            responsive: false,
+                            responsive: true,
                             plugins:{
                             legend: {
                                 display: true,
