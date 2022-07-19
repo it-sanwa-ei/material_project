@@ -97,3 +97,7 @@ class EstimasiMaterialUsageCO(models.Model):
     total_berat_material = models.DecimalField('Total Berat Material', max_digits=200, decimal_places=2, blank=True, null=True)
     virgin_per_day = models.DecimalField('Virgin / Day', max_digits=200, decimal_places=2, blank=True, null=True)
     regrind_per_day = models.DecimalField('Regrind / Day', max_digits=200, decimal_places=2, blank=True, null=True)
+
+    def __str__(self):
+        emu = '{0.tanggal_operasi} / {0.virgin_per_day} / {0.regrind_per_day}'
+        return emu.format(self)

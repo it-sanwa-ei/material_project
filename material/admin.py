@@ -4,7 +4,7 @@ from import_export.admin import ImportExportModelAdmin, ImportExportMixin, Expor
 from import_export.formats import base_formats
 
 # Register your models here.
-from .models import Product, HopperFillData
+from .models import Product, HopperFillData, EstimasiMaterialUsageCO
 from .resources import ProductResources, HopperFillDataResources
 
 class CustomAdminProduct(ImportExportMixin, admin.ModelAdmin):
@@ -28,3 +28,4 @@ class CustomAdminProduct(ImportExportMixin, admin.ModelAdmin):
 
 admin.site.register(Product, CustomAdminProduct)
 admin.site.register(HopperFillData, admin.ModelAdmin)
+admin.site.register(EstimasiMaterialUsageCO, admin.ModelAdmin)
