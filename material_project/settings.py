@@ -28,7 +28,8 @@ SECRET_KEY = 'r=AJ#pEidRKoW1y4Q?ju}$N(PD(~iuaFfzQQ$#~XCo^<$"rstB7}p]zKGH)_g4]'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.137.1', '119.110.67.20', '127.0.0.1', '10.0.1.114' , 'localhost', '10.0.1.66',]
+ALLOWED_HOSTS = ['192.168.137.1', '119.110.67.20', '127.0.0.1', '10.0.1.114' , 'localhost', '10.0.1.66',
+                'production.sanwa-ei.co.id', 'sanwa-ei.site',]
 
 
 # Application definition
